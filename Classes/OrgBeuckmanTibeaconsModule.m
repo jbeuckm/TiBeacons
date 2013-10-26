@@ -346,11 +346,11 @@
     }
     
     return [[NSDictionary alloc] initWithObjectsAndKeys:
-//        beacon.major, @"major",
-//        beacon.minor, @"minor",
-        proximity, @"proximity",
-//        beacon.accuracy, @"accuracy",
-//        beacon.rssi, @"rssi",
+            [NSString stringWithFormat:@"%@", beacon.major], @"major",
+            [NSString stringWithFormat:@"%@", beacon.minor], @"minor",
+            proximity, @"proximity",
+            [NSString stringWithFormat:@"%f", beacon.accuracy], @"accuracy",
+            [NSString stringWithFormat:@"%d", beacon.rssi], @"rssi",
         nil
     ];
 }
