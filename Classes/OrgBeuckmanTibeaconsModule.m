@@ -208,8 +208,17 @@
     }
     
     NSString *count = [NSString stringWithFormat:@"%lu", (unsigned long)[filteredBeacons count]];
+    
+    NSMutableArray *eventBeacons = [[NSMutableArray alloc] init];
+    for (id beacon in filteredBeacons) {
+        // do something with object
+        [eventBeacons addObject:[self detailsForBeacon:beacon]];
+    }
 
-    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:count, @"count", nil];
+    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
+        count, @"count",
+        eventBeacons, @"beacons",
+    nil];
     
     [self fireEvent:@"beaconRanges" withObject:event];
  
@@ -337,11 +346,11 @@
     }
     
     return [[NSDictionary alloc] initWithObjectsAndKeys:
-        beacon.major, @"major",
-        beacon.minor, @"minor",
+//        beacon.major, @"major",
+//        beacon.minor, @"minor",
         proximity, @"proximity",
-        beacon.accuracy, @"accuracy",
-        beacon.rssi, @"rssi",
+//        beacon.accuracy, @"accuracy",
+//        beacon.rssi, @"rssi",
         nil
     ];
 }
