@@ -1,20 +1,4 @@
-Appcelerator Titanium iPhone Module Project
-===========================================
 
-This is a skeleton Titanium Mobile iPhone module project.  Modules can be 
-used to extend the functionality of Titanium by providing additional native
-code that is compiled into your application at build time and can expose certain
-APIs into JavaScript. 
-
-MODULE NAMING
---------------
-
-Choose a unique module id for your module.  This ID usually follows a namespace
-convention using DNS notation.  For example, com.appcelerator.module.test.  This
-ID can only be used once by all public modules in Titanium.
-
-
-COMPONENTS
 -----------
 
 Components that are exposed by your module must follow a special naming convention.
