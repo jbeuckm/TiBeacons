@@ -102,10 +102,10 @@
 	return @"hello world";
 }
 
--(id)exampleProp
+-(id)detectedBeacons
 {
 	// example property getter
-	return @"hello world";
+	return self.detectedBeacons;
 }
 
 -(void)setExampleProp:(id)value
