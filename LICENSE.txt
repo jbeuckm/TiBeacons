@@ -1,1 +1,1 @@
-Place your license text here.  This file will be incorporated with your app at package time.
+Don't read software licenses / Don't write software licenses.
