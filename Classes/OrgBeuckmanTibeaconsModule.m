@@ -205,23 +205,23 @@
     } else {
         NSLog(@"[INFO] Found %lu %@.", (unsigned long)[filteredBeacons count],
               [filteredBeacons count] > 1 ? @"beacons" : @"beacon");
-    }
     
-    NSString *count = [NSString stringWithFormat:@"%lu", (unsigned long)[filteredBeacons count]];
+        NSString *count = [NSString stringWithFormat:@"%lu", (unsigned long)[filteredBeacons count]];
     
-    NSMutableArray *eventBeacons = [[NSMutableArray alloc] init];
-    for (id beacon in filteredBeacons) {
-        // do something with object
-        [eventBeacons addObject:[self detailsForBeacon:beacon]];
-    }
+        NSMutableArray *eventBeacons = [[NSMutableArray alloc] init];
+        for (id beacon in filteredBeacons) {
+            // do something with object
+            [eventBeacons addObject:[self detailsForBeacon:beacon]];
+        }
 
-    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
-        count, @"count",
-        eventBeacons, @"beacons",
-    nil];
+        NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
+                               count, @"count",
+                               eventBeacons, @"beacons",
+                               nil];
     
-    [self fireEvent:@"beaconRanges" withObject:event];
+        [self fireEvent:@"beaconRanges" withObject:event];
  
+    }
 }
 
 

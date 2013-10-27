@@ -2,9 +2,9 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 0.1
+version: 0.2
 apiversion: 2
-description: Implements iBeacon interface as in (nicktoumpelis) HiBeacons
+description: Implements iBeacon advertising and scanning
 author: Joe Beuckman
 license: No
 copyright: No
