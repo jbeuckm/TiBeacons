@@ -201,7 +201,7 @@
     NSArray *filteredBeacons = [self filteredBeacons:beacons];
     
     if (filteredBeacons.count == 0) {
-        NSLog(@"[INFO] No beacons found nearby.");
+        // do nothing - no beacons
     } else {
         NSLog(@"[INFO] Found %lu %@.", (unsigned long)[filteredBeacons count],
               [filteredBeacons count] > 1 ? @"beacons" : @"beacon");
