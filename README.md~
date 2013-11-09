@@ -6,10 +6,12 @@ Become an iBeacon:
 var TiBeacons = require('org.beuckman.tibeacons');
 
 TiBeacons.addEventListener("advertisingStatus", function(event) {
-    Ti.API.info(event);
-    $.trace.add(Ti.UI.createLabel({
-        text : JSON.stringify(event)
-    }));
+    Ti.API.info(event.status);
+});
+
+TiBeacons.startAdvertisingBeacon({
+   uuid : "00000000-0000-0000-0000-000000000000",
+   identifier : "TiBeacon Test"
 });
 ```
 
@@ -28,3 +30,4 @@ TiBeacons.startRangingForBeacons({
     identifier : "TiBeacon Test"
 });
 ```
+
