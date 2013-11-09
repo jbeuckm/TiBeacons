@@ -17,6 +17,9 @@
 @property (nonatomic, strong) CBPeripheralManager *peripheralManager;
 @property (nonatomic, strong) NSArray *detectedBeacons;
 
+@property NSUInteger major;
+@property NSUInteger minor;
+
 @end
 
 @implementation OrgBeuckmanTibeaconsModule
@@ -205,22 +208,22 @@
     } else {
         NSLog(@"[INFO] Found %lu %@.", (unsigned long)[filteredBeacons count],
               [filteredBeacons count] > 1 ? @"beacons" : @"beacon");
-    
+
         NSString *count = [NSString stringWithFormat:@"%lu", (unsigned long)[filteredBeacons count]];
-    
+
         NSMutableArray *eventBeacons = [[NSMutableArray alloc] init];
         for (id beacon in filteredBeacons) {
             // do something with object
             [eventBeacons addObject:[self detailsForBeacon:beacon]];
         }
-
+        
         NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
                                count, @"count",
                                eventBeacons, @"beacons",
                                nil];
     
         [self fireEvent:@"beaconRanges" withObject:event];
- 
+        
     }
 }
 
@@ -256,12 +259,11 @@
         return;
     }
     
-    time_t t;
-    srand((unsigned) time(&t));
     CLBeaconRegion *region = [[CLBeaconRegion alloc] initWithProximityUUID:self.beaconRegion.proximityUUID
-                                                                     major:rand()
-                                                                     minor:rand()
+                                                                     major:self.major
+                                                                     minor:self.minor
                                                                 identifier:self.beaconRegion.identifier];
+
     NSDictionary *beaconPeripheralData = [region peripheralDataWithMeasuredPower:nil];
     [self.peripheralManager startAdvertising:beaconPeripheralData];
     
@@ -276,13 +278,17 @@
     
     NSString *uuid = [TiUtils stringValue:[args objectForKey:@"uuid"]];
     NSString *identifier = [TiUtils stringValue:[args objectForKey:@"identifier"]];
+    
+    self.major = (NSUInteger)[TiUtils intValue:[args objectForKey:@"major"] def:1];
+    self.minor = (NSUInteger)[TiUtils intValue:[args objectForKey:@"minor"] def:1];
 
     NSLog(@"[INFO] Turning on advertising...");
     
     [self createBeaconRegionWithUUID:uuid andIdentifier:identifier];
     
-    if (!self.peripheralManager)
+    if (!self.peripheralManager) {
         self.peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil options:nil];
+    }
     
     [self turnOnAdvertising];
 }
@@ -331,17 +337,17 @@
     NSString *proximity;
     switch (beacon.proximity) {
         case CLProximityNear:
-            proximity = @"Near";
+            proximity = @"near";
             break;
         case CLProximityImmediate:
-            proximity = @"Immediate";
+            proximity = @"immediate";
             break;
         case CLProximityFar:
-            proximity = @"Far";
+            proximity = @"far";
             break;
         case CLProximityUnknown:
         default:
-            proximity = @"Unknown";
+            proximity = @"unknown";
             break;
     }
     
