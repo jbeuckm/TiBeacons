@@ -1,5 +1,4 @@
 
-
 // open a single window
 var win = Ti.UI.createWindow({
 	backgroundColor:'white'
@@ -29,6 +28,8 @@ TiBeacons.startRangingForBeacons({
 // or if you want to be an iBeacon
 TiBeacons.startAdvertisingBeacon({
     uuid: "00000000-0000-0000-0000-000000000000",
-    identifier: "TiBeacon Test"
+    identifier: "TiBeacon Test",
+    major: 123,
+    minor: 456
 });
 
