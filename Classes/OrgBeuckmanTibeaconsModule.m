@@ -299,9 +299,17 @@
 
 - (void)stopAdvertisingBeacon:(id)args
 {
-    [self.peripheralManager stopAdvertising];
     
-    NSLog(@"[INFO] Turned off advertising.");
+    if (self.peripheralManager) {
+        
+        if (self.peripheralManager.state == CBPeripheralManagerStatePoweredOn){
+            
+            [self.peripheralManager stopAdvertising];
+            NSLog(@"[INFO] Turned off advertising.");
+        }else{
+            NSLog(@"[INFO] peripheral manager state was off, no need to turn advertsing off");
+        }
+    }
 }
 
 #pragma mark - Beacon advertising delegate methods
