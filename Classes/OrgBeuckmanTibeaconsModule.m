@@ -126,6 +126,7 @@
     
     NSUUID *proximityUUID = [[NSUUID alloc] initWithUUIDString:uuid];
     self.beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID identifier:identifier];
+    [proximityUUID release];
     
     self.beaconRegion.notifyEntryStateOnDisplay = true;
 }
@@ -159,6 +160,7 @@
     NSString *uuid = [TiUtils stringValue:[args objectForKey:@"uuid"]];
     NSString *identifier = [TiUtils stringValue:[args objectForKey:@"identifier"]];
     
+    [self.locationManager release];
     self.locationManager = [[CLLocationManager alloc] init];
     self.locationManager.delegate = self;
     
@@ -221,8 +223,10 @@
                                count, @"count",
                                eventBeacons, @"beacons",
                                nil];
+        [eventBeacons release];
     
         [self fireEvent:@"beaconRanges" withObject:event];
+        [event autorelease];
         
     }
 }
@@ -311,8 +315,11 @@
     
     if (peripheralManager.isAdvertising) {
         NSLog(@"[INFO] Turned on advertising.");
+        
+        NSDictionary *status = [[NSDictionary alloc] initWithObjectsAndKeys: @"on", @"status", nil];
 
-        [self fireEvent:@"advertisingStatus" withObject:[[NSDictionary alloc] initWithObjectsAndKeys: @"on", @"status", nil]];
+        [self fireEvent:@"advertisingStatus" withObject:status];
+        [status autorelease];
     }
 }
 
@@ -351,7 +358,7 @@
             break;
     }
     
-    return [[NSDictionary alloc] initWithObjectsAndKeys:
+    NSDictionary *details = [[NSDictionary alloc] initWithObjectsAndKeys:
             [NSString stringWithFormat:@"%@", beacon.major], @"major",
             [NSString stringWithFormat:@"%@", beacon.minor], @"minor",
             proximity, @"proximity",
@@ -359,6 +366,8 @@
             [NSString stringWithFormat:@"%d", beacon.rssi], @"rssi",
         nil
     ];
+    
+    return [details autorelease];
 }
 
 
