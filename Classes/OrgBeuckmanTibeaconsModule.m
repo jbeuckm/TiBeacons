@@ -120,7 +120,7 @@
     
     beaconRegion.notifyEntryStateOnDisplay = true;
     
-    return beaconRegion;
+    return [beaconRegion autorelease];
 }
 
 - (CLBeaconRegion *)createBeaconRegionWithUUID:(NSString *)uuid major:(NSUInteger)major minor:(NSUInteger)minor identifier:(NSString *)identifier
@@ -132,7 +132,7 @@
     
     beaconRegion.notifyEntryStateOnDisplay = true;
     
-    return beaconRegion;
+    return [beaconRegion autorelease];
 }
 
 - (void)turnOnRangingWithUUID:(NSString *)uuid andIdentifier:(NSString *)identifier
@@ -176,13 +176,10 @@
         NSLog(@"[INFO] Didn't turn off ranging: Ranging already off.");
         return;
     }
-    
-    for (CLBeaconRegion *region in self.scanRegions) {
-        [self.locationManager stopRangingBeaconsInRegion:region];
-        [region release];
-    }
-    
+        
     while (self.scanRegions.count > 0) {
+        CLBeaconRegion *region = [self.scanRegions objectAtIndex:0];
+        [self.locationManager stopRangingBeaconsInRegion:region];
         [self.scanRegions removeObjectAtIndex:0];
     }
     
@@ -291,6 +288,7 @@
     NSLog(@"[INFO] Turning on advertising...");
     
     self.beaconRegion = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
+    [self.beaconRegion retain];
     
     if (!self.peripheralManager) {
         self.peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil options:nil];
@@ -307,6 +305,9 @@
         if (self.peripheralManager.state == CBPeripheralManagerStatePoweredOn){
             
             [self.peripheralManager stopAdvertising];
+            
+            [self.beaconRegion release];
+            
             NSLog(@"[INFO] Turned off advertising.");
         }else{
             NSLog(@"[INFO] peripheral manager state was off, no need to turn advertsing off");
