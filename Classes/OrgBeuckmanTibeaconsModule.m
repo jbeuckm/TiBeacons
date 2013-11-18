@@ -13,9 +13,10 @@
 @interface OrgBeuckmanTibeaconsModule ()
 
 @property (nonatomic, strong) CLLocationManager *locationManager;
-@property (nonatomic, strong) CLBeaconRegion *beaconRegion;
+@property (nonatomic, strong) NSMutableArray *scanRegions;
+
 @property (nonatomic, strong) CBPeripheralManager *peripheralManager;
-@property (nonatomic, strong) NSArray *detectedBeacons;
+@property (nonatomic, strong) CLBeaconRegion *beaconRegion;
 
 @property NSUInteger major;
 @property NSUInteger minor;
@@ -42,9 +43,9 @@
 
 -(void)startup
 {
-	// this method is called when the module is first loaded
-	// you *must* call the superclass
 	[super startup];
+    
+    self.scanRegions = [[NSMutableArray alloc] init];
 	
 	NSLog(@"[INFO] %@ loaded",self);
 }
@@ -105,12 +106,6 @@
 	return @"hello world";
 }
 
--(id)detectedBeacons
-{
-	// example property getter
-	return self.detectedBeacons;
-}
-
 -(void)setExampleProp:(id)value
 {
 	// example property setter
@@ -119,16 +114,16 @@
 
 
 #pragma mark - Beacon ranging
-- (void)createBeaconRegionWithUUID:(NSString *)uuid andIdentifier:(NSString *)identifier
+- (CLBeaconRegion *)createBeaconRegionWithUUID:(NSString *)uuid andIdentifier:(NSString *)identifier
 {
-    if (self.beaconRegion)
-        return;
     
     NSUUID *proximityUUID = [[NSUUID alloc] initWithUUIDString:uuid];
-    self.beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID identifier:identifier];
+    CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID identifier:identifier];
     [proximityUUID release];
     
-    self.beaconRegion.notifyEntryStateOnDisplay = true;
+    beaconRegion.notifyEntryStateOnDisplay = true;
+    
+    return beaconRegion;
 }
 
 - (void)turnOnRangingWithUUID:(NSString *)uuid andIdentifier:(NSString *)identifier
@@ -139,16 +134,14 @@
         NSLog(@"[INFO] Couldn't turn on ranging: Ranging is not available.");
         return;
     }
+
+    CLBeaconRegion *beaconRegion = [self createBeaconRegionWithUUID:uuid andIdentifier:identifier];
     
-    if (self.locationManager.rangedRegions.count > 0) {
-        NSLog(@"[INFO] Didn't turn on ranging: Ranging already on.");
-        return;
-    }
+    [self.scanRegions addObject:beaconRegion];
     
-    [self createBeaconRegionWithUUID:uuid andIdentifier:identifier];
-    [self.locationManager startRangingBeaconsInRegion:self.beaconRegion];
+    [self.locationManager startRangingBeaconsInRegion:beaconRegion];
     
-    NSLog(@"[INFO] Ranging turned on for region: %@.", self.beaconRegion);
+    NSLog(@"[INFO] Ranging turned on for region: %@.", beaconRegion);
 }
 
 
@@ -160,11 +153,10 @@
     NSString *uuid = [TiUtils stringValue:[args objectForKey:@"uuid"]];
     NSString *identifier = [TiUtils stringValue:[args objectForKey:@"identifier"]];
     
-    [self.locationManager release];
-    self.locationManager = [[CLLocationManager alloc] init];
-    self.locationManager.delegate = self;
-    
-    self.detectedBeacons = [NSArray array];
+    if (!self.locationManager) {
+        self.locationManager = [[CLLocationManager alloc] init];
+        self.locationManager.delegate = self;
+    }
     
     [self turnOnRangingWithUUID:uuid andIdentifier:identifier];
 }
@@ -176,9 +168,14 @@
         return;
     }
     
-    [self.locationManager stopRangingBeaconsInRegion:self.beaconRegion];
+    for (CLBeaconRegion *region in self.scanRegions) {
+        [self.locationManager stopRangingBeaconsInRegion:region];
+        [region release];
+    }
     
-    self.detectedBeacons = [NSArray array];
+    while (self.scanRegions.count > 0) {
+        [self.scanRegions removeObjectAtIndex:0];
+    }
     
     NSLog(@"[INFO] Turned off ranging.");
 }
@@ -262,16 +259,11 @@
         NSLog(@"[INFO] Peripheral manager is off.");
         return;
     }
-    
-    CLBeaconRegion *region = [[CLBeaconRegion alloc] initWithProximityUUID:self.beaconRegion.proximityUUID
-                                                                     major:self.major
-                                                                     minor:self.minor
-                                                                identifier:self.beaconRegion.identifier];
 
-    NSDictionary *beaconPeripheralData = [region peripheralDataWithMeasuredPower:nil];
+    NSDictionary *beaconPeripheralData = [self.beaconRegion peripheralDataWithMeasuredPower:nil];
     [self.peripheralManager startAdvertising:beaconPeripheralData];
     
-    NSLog(@"[INFO] Turning on advertising for region: %@.", region);
+    NSLog(@"[INFO] Turning on advertising for region: %@.", self.beaconRegion);
 }
 
 
@@ -288,7 +280,7 @@
 
     NSLog(@"[INFO] Turning on advertising...");
     
-    [self createBeaconRegionWithUUID:uuid andIdentifier:identifier];
+    self.beaconRegion = [self createBeaconRegionWithUUID:uuid andIdentifier:identifier];
     
     if (!self.peripheralManager) {
         self.peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil options:nil];
