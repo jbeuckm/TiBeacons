@@ -18,9 +18,6 @@
 @property (nonatomic, strong) CBPeripheralManager *peripheralManager;
 @property (nonatomic, strong) CLBeaconRegion *beaconRegion;
 
-@property NSUInteger major;
-@property NSUInteger minor;
-
 @end
 
 @implementation OrgBeuckmanTibeaconsModule
@@ -119,6 +116,18 @@
     
     NSUUID *proximityUUID = [[NSUUID alloc] initWithUUIDString:uuid];
     CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID identifier:identifier];
+    [proximityUUID release];
+    
+    beaconRegion.notifyEntryStateOnDisplay = true;
+    
+    return beaconRegion;
+}
+
+- (CLBeaconRegion *)createBeaconRegionWithUUID:(NSString *)uuid major:(NSUInteger)major minor:(NSUInteger)minor identifier:(NSString *)identifier
+{
+    
+    NSUUID *proximityUUID = [[NSUUID alloc] initWithUUIDString:uuid];
+    CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID major:major minor:minor identifier:identifier];
     [proximityUUID release];
     
     beaconRegion.notifyEntryStateOnDisplay = true;
@@ -276,12 +285,12 @@
     NSString *uuid = [TiUtils stringValue:[args objectForKey:@"uuid"]];
     NSString *identifier = [TiUtils stringValue:[args objectForKey:@"identifier"]];
     
-    self.major = (NSUInteger)[TiUtils intValue:[args objectForKey:@"major"] def:1];
-    self.minor = (NSUInteger)[TiUtils intValue:[args objectForKey:@"minor"] def:1];
+    NSUInteger major = (NSUInteger)[TiUtils intValue:[args objectForKey:@"major"] def:1];
+    NSUInteger minor = (NSUInteger)[TiUtils intValue:[args objectForKey:@"minor"] def:1];
 
     NSLog(@"[INFO] Turning on advertising...");
     
-    self.beaconRegion = [self createBeaconRegionWithUUID:uuid andIdentifier:identifier];
+    self.beaconRegion = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
     
     if (!self.peripheralManager) {
         self.peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil options:nil];
