@@ -217,6 +217,7 @@
         }
         
         NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
+                               region.identifier, @"identifier",
                                count, @"count",
                                eventBeacons, @"beacons",
                                nil];
