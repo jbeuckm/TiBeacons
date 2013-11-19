@@ -18,6 +18,8 @@
 @property (nonatomic, strong) CBPeripheralManager *peripheralManager;
 @property (nonatomic, strong) CLBeaconRegion *beaconRegion;
 
+@property (nonatomic, strong) NSMutableDictionary *beaconProximities;
+
 @end
 
 @implementation OrgBeuckmanTibeaconsModule
@@ -43,6 +45,7 @@
 	[super startup];
     
     self.scanRegions = [[NSMutableArray alloc] init];
+    self.beaconProximities = [[NSMutableDictionary alloc] init];
 	
 	NSLog(@"[INFO] %@ loaded",self);
 }
@@ -61,6 +64,16 @@
 
 -(void)dealloc
 {
+    [self.scanRegions release];
+    [self.beaconProximities release];
+    
+    if (self.locationManager) {
+        [self.locationManager release];
+    }
+    if (self.peripheralManager) {
+        [self.peripheralManager release];
+    }
+    
 	// release any resources that have been retained by the module
 	[super dealloc];
 }
@@ -235,8 +248,29 @@
         [eventBeacons release];
     
         [self fireEvent:@"beaconRanges" withObject:event];
-        [event autorelease];
+        [event release];
         
+        [self reportCrossings:filteredBeacons];
+    }
+}
+
+- (void)reportCrossings:(NSArray *)beacons
+{
+    for (int index = 0; index < [beacons count]; index++) {
+        CLBeacon *curr = [beacons objectAtIndex:index];
+        NSString *identifier = [NSString stringWithFormat:@"%@/%@/%@", curr.proximityUUID.UUIDString, curr.major, curr.minor];
+        
+        CLBeacon *beacon = [self.beaconProximities objectForKey:identifier];
+        if (beacon) {
+            if (beacon.proximity != curr.proximity) {
+                [self fireEvent:@"beaconProximity" withObject:[self detailsForBeacon:curr]];
+            }
+        }
+        else {
+            [self fireEvent:@"beaconProximity" withObject:[self detailsForBeacon:curr]];
+        }
+
+        [self.beaconProximities setObject:curr forKey:identifier];
     }
 }
 
