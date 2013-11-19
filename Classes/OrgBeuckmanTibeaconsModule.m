@@ -176,7 +176,7 @@
         NSLog(@"[INFO] Didn't turn off ranging: Ranging already off.");
         return;
     }
-        
+    
     while (self.scanRegions.count > 0) {
         CLBeaconRegion *region = [self.scanRegions objectAtIndex:0];
         [self.locationManager stopRangingBeaconsInRegion:region];
@@ -210,7 +210,8 @@
     
     if (filteredBeacons.count == 0) {
         // do nothing - no beacons
-    } else {
+    }
+    else {
         NSLog(@"[INFO] Found %lu %@.", (unsigned long)[filteredBeacons count],
               [filteredBeacons count] > 1 ? @"beacons" : @"beacon");
 
@@ -224,6 +225,7 @@
         
         NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
                                region.identifier, @"identifier",
+                               region.proximityUUID.UUIDString, @"uuid",
                                count, @"count",
                                eventBeacons, @"beacons",
                                nil];
