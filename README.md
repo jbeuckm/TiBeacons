@@ -39,7 +39,7 @@ TiBeacons.startRangingForBeacons({
 
 Listen for beacon proximity changes:
 
-```
+```javascript
 TiBeacons.addEventListener("beaconProximity", function(e){
    alert("beacon "+e.major+"/"+e.minor+" is now "+e.proximity);
 });

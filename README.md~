@@ -26,12 +26,21 @@ Find and range iBeacons:
 var TiBeacons = require('org.beuckman.tibeacons');
 
 TiBeacons.addEventListener("beaconRanges", function(event) {
-   alert(event.beaconRanges);
+   alert(event.beacons);
 });
 
 TiBeacons.startRangingForBeacons({
     uuid : "00000000-0000-0000-0000-000000000000",
-    identifier : "TiBeacon Test"
+    identifier : "TiBeacon Test",
+    major: 1, // optional
+    minor: 2  // optional
 });
 ```
 
+Listen for beacon proximity changes:
+
+```
+TiBeacons.addEventListener("beaconProximity", function(e){
+   alert("beacon "+e.major+"/"+e.minor+" is now "+e.proximity);
+});
+```
