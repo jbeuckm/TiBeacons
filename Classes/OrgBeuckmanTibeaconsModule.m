@@ -111,31 +111,32 @@
 
 
 #pragma mark - Beacon ranging
-- (CLBeaconRegion *)createBeaconRegionWithUUID:(NSString *)uuid andIdentifier:(NSString *)identifier
+
+
+- (CLBeaconRegion *)createBeaconRegionWithUUID:(NSString *)uuid major:(NSInteger)major minor:(NSInteger)minor identifier:(NSString *)identifier
 {
     
     NSUUID *proximityUUID = [[NSUUID alloc] initWithUUIDString:uuid];
-    CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID identifier:identifier];
-    [proximityUUID release];
+    CLBeaconRegion *beaconRegion;
     
+    if (major != -1 && minor != -1) {
+        beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID major:major minor:minor identifier:identifier];
+    }
+    else if (major != -1) {
+        beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID major:major identifier:identifier];
+    }
+    else {
+        beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID identifier:identifier];
+    }
+    
+    [proximityUUID release];
+
     beaconRegion.notifyEntryStateOnDisplay = true;
     
     return [beaconRegion autorelease];
 }
 
-- (CLBeaconRegion *)createBeaconRegionWithUUID:(NSString *)uuid major:(NSUInteger)major minor:(NSUInteger)minor identifier:(NSString *)identifier
-{
-    
-    NSUUID *proximityUUID = [[NSUUID alloc] initWithUUIDString:uuid];
-    CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID major:major minor:minor identifier:identifier];
-    [proximityUUID release];
-    
-    beaconRegion.notifyEntryStateOnDisplay = true;
-    
-    return [beaconRegion autorelease];
-}
-
-- (void)turnOnRangingWithUUID:(NSString *)uuid andIdentifier:(NSString *)identifier
+- (void)turnOnRangingWithRegion:(CLBeaconRegion *)beaconRegion
 {
     NSLog(@"[INFO] Turning on ranging...");
     
@@ -143,8 +144,6 @@
         NSLog(@"[INFO] Couldn't turn on ranging: Ranging is not available.");
         return;
     }
-
-    CLBeaconRegion *beaconRegion = [self createBeaconRegionWithUUID:uuid andIdentifier:identifier];
     
     [self.scanRegions addObject:beaconRegion];
     
@@ -160,6 +159,9 @@
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
     NSString *uuid = [TiUtils stringValue:[args objectForKey:@"uuid"]];
+    NSInteger major = (NSUInteger)[TiUtils intValue:[args objectForKey:@"major"] def:-1];
+    NSInteger minor = (NSUInteger)[TiUtils intValue:[args objectForKey:@"minor"] def:-1];
+
     NSString *identifier = [TiUtils stringValue:[args objectForKey:@"identifier"]];
     
     if (!self.locationManager) {
@@ -167,7 +169,8 @@
         self.locationManager.delegate = self;
     }
     
-    [self turnOnRangingWithUUID:uuid andIdentifier:identifier];
+    CLBeaconRegion *region = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
+    [self turnOnRangingWithRegion:region];
 }
 
 - (void)stopRangingForBeacons:(id)args
