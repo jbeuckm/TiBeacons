@@ -250,11 +250,11 @@
         [self fireEvent:@"beaconRanges" withObject:event];
         [event release];
         
-        [self reportCrossings:filteredBeacons];
+        [self reportCrossings:filteredBeacons inRegion:region];
     }
 }
 
-- (void)reportCrossings:(NSArray *)beacons
+- (void)reportCrossings:(NSArray *)beacons inRegion:(CLRegion *)region
 {
     for (int index = 0; index < [beacons count]; index++) {
         CLBeacon *curr = [beacons objectAtIndex:index];
@@ -263,11 +263,15 @@
         CLBeacon *beacon = [self.beaconProximities objectForKey:identifier];
         if (beacon) {
             if (beacon.proximity != curr.proximity) {
-                [self fireEvent:@"beaconProximity" withObject:[self detailsForBeacon:curr]];
+                NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeacon:curr]];
+                [event setObject:region.identifier forKey:@"identifier"];
+                [self fireEvent:@"beaconProximity" withObject:event];
             }
         }
         else {
-            [self fireEvent:@"beaconProximity" withObject:[self detailsForBeacon:curr]];
+            NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeacon:curr]];
+            [event setObject:region.identifier forKey:@"identifier"];
+            [self fireEvent:@"beaconProximity" withObject:event];
         }
 
         [self.beaconProximities setObject:curr forKey:identifier];
@@ -294,6 +298,40 @@
     }
     
     return [mutableBeacons copy];
+}
+
+
+- (NSDictionary *)detailsForBeacon:(CLBeacon *)beacon
+{
+    
+    NSString *proximity;
+    switch (beacon.proximity) {
+        case CLProximityNear:
+            proximity = @"near";
+            break;
+        case CLProximityImmediate:
+            proximity = @"immediate";
+            break;
+        case CLProximityFar:
+            proximity = @"far";
+            break;
+        case CLProximityUnknown:
+        default:
+            proximity = @"unknown";
+            break;
+    }
+    
+    NSDictionary *details = [[NSDictionary alloc] initWithObjectsAndKeys:
+                             beacon.proximityUUID.UUIDString, @"uuid",
+                             [NSString stringWithFormat:@"%@", beacon.major], @"major",
+                             [NSString stringWithFormat:@"%@", beacon.minor], @"minor",
+                             proximity, @"proximity",
+                             [NSString stringWithFormat:@"%f", beacon.accuracy], @"accuracy",
+                             [NSString stringWithFormat:@"%d", beacon.rssi], @"rssi",
+                             nil
+                             ];
+    
+    return [details autorelease];
 }
 
 
@@ -383,41 +421,6 @@
     NSLog(@"[INFO] Peripheral manager is on.");
 
     [self turnOnAdvertising];
-}
-
-
-
-
-- (NSDictionary *)detailsForBeacon:(CLBeacon *)beacon
-{
-    
-    NSString *proximity;
-    switch (beacon.proximity) {
-        case CLProximityNear:
-            proximity = @"near";
-            break;
-        case CLProximityImmediate:
-            proximity = @"immediate";
-            break;
-        case CLProximityFar:
-            proximity = @"far";
-            break;
-        case CLProximityUnknown:
-        default:
-            proximity = @"unknown";
-            break;
-    }
-    
-    NSDictionary *details = [[NSDictionary alloc] initWithObjectsAndKeys:
-            [NSString stringWithFormat:@"%@", beacon.major], @"major",
-            [NSString stringWithFormat:@"%@", beacon.minor], @"minor",
-            proximity, @"proximity",
-            [NSString stringWithFormat:@"%f", beacon.accuracy], @"accuracy",
-            [NSString stringWithFormat:@"%d", beacon.rssi], @"rssi",
-        nil
-    ];
-    
-    return [details autorelease];
 }
 
 
