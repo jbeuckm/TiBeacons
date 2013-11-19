@@ -1,5 +1,7 @@
 ### Usage ###
 
+See this example app for usage: [TiBeacons Example App](https://github.com/jbeuckm/TiBeacons-Example-App)
+
 Become an iBeacon:
 
 ```javascript
@@ -11,7 +13,9 @@ TiBeacons.addEventListener("advertisingStatus", function(event) {
 
 TiBeacons.startAdvertisingBeacon({
    uuid : "00000000-0000-0000-0000-000000000000",
-   identifier : "TiBeacon Test"
+   identifier : "TiBeacon Test",
+   major: 1,
+   minor: 2
 });
 ```
 
@@ -22,7 +26,7 @@ Find and range iBeacons:
 var TiBeacons = require('org.beuckman.tibeacons');
 
 TiBeacons.addEventListener("beaconRanges", function(event) {
-   alert(event.beacons);
+   alert(event.beaconRanges);
 });
 
 TiBeacons.startRangingForBeacons({
