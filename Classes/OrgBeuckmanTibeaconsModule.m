@@ -257,24 +257,27 @@
 - (void)reportCrossings:(NSArray *)beacons inRegion:(CLRegion *)region
 {
     for (int index = 0; index < [beacons count]; index++) {
-        CLBeacon *curr = [beacons objectAtIndex:index];
-        NSString *identifier = [NSString stringWithFormat:@"%@/%@/%@", curr.proximityUUID.UUIDString, curr.major, curr.minor];
+        CLBeacon *current = [beacons objectAtIndex:index];
+        NSString *identifier = [NSString stringWithFormat:@"%@/%@/%@", current.proximityUUID.UUIDString, current.major, current.minor];
         
-        CLBeacon *beacon = [self.beaconProximities objectForKey:identifier];
-        if (beacon) {
-            if (beacon.proximity != curr.proximity) {
-                NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeacon:curr]];
+        CLBeacon *previous = [self.beaconProximities objectForKey:identifier];
+        if (previous) {
+            if (previous.proximity != current.proximity) {
+                NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeacon:current]];
                 [event setObject:region.identifier forKey:@"identifier"];
+                
+                [event setObject:[self decodeProximity:previous.proximity] forKey:@"fromProximity"];
+                
                 [self fireEvent:@"beaconProximity" withObject:event];
             }
         }
         else {
-            NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeacon:curr]];
+            NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeacon:current]];
             [event setObject:region.identifier forKey:@"identifier"];
             [self fireEvent:@"beaconProximity" withObject:event];
         }
 
-        [self.beaconProximities setObject:curr forKey:identifier];
+        [self.beaconProximities setObject:current forKey:identifier];
     }
 }
 
@@ -304,22 +307,7 @@
 - (NSDictionary *)detailsForBeacon:(CLBeacon *)beacon
 {
     
-    NSString *proximity;
-    switch (beacon.proximity) {
-        case CLProximityNear:
-            proximity = @"near";
-            break;
-        case CLProximityImmediate:
-            proximity = @"immediate";
-            break;
-        case CLProximityFar:
-            proximity = @"far";
-            break;
-        case CLProximityUnknown:
-        default:
-            proximity = @"unknown";
-            break;
-    }
+    NSString *proximity = [self decodeProximity:beacon.proximity];
     
     NSDictionary *details = [[NSDictionary alloc] initWithObjectsAndKeys:
                              beacon.proximityUUID.UUIDString, @"uuid",
@@ -334,6 +322,26 @@
     return [details autorelease];
 }
 
+
+- (NSString *)decodeProximity:(int)proximity
+{
+    switch (proximity) {
+        case CLProximityNear:
+            return @"near";
+            break;
+        case CLProximityImmediate:
+            return @"immediate";
+            break;
+        case CLProximityFar:
+            return @"far";
+            break;
+        case CLProximityUnknown:
+        default:
+            return @"unknown";
+            break;
+    }
+    
+}
 
 
 #pragma mark - Beacon advertising
