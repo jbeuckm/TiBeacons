@@ -57,3 +57,5 @@ TiBeacons.addEventListener("beaconProximity", function(e){
 });
 ```
 
+#### Coming soon: ####
+I'm working now to implement the Monitoring API for iBeacons.
