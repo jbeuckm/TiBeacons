@@ -110,18 +110,6 @@
 
 #pragma Public APIs
 
--(id)example:(id)args
-{
-	// example method
-	return @"hello world";
-}
-
--(void)setExampleProp:(id)value
-{
-	// example property setter
-}
-
-
 
 #pragma mark - Beacon ranging
 
@@ -145,6 +133,8 @@
     [proximityUUID release];
 
     beaconRegion.notifyEntryStateOnDisplay = true;
+    beaconRegion.notifyOnEntry = true;
+    beaconRegion.notifyOnExit = true;
     
     return [beaconRegion autorelease];
 }
@@ -199,8 +189,91 @@
         [self.scanRegions removeObjectAtIndex:0];
     }
     
-    NSLog(@"[INFO] Turned off ranging.");
+    NSLog(@"[INFO] Turned off ranging in ALL renions.");
 }
+
+//
+// PUBLIC
+// Method which allows the client to be notified when it has entered the region
+//
+- (void)startWatchingForRegion:(id)args
+{
+    ENSURE_UI_THREAD_1_ARG(args);
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+ 
+    NSLog(@"[INFO] Turning on region watching...");
+
+    NSString *uuid = [TiUtils stringValue:[args objectForKey:@"uuid"]];
+    NSInteger major = (NSUInteger)[TiUtils intValue:[args objectForKey:@"major"] def:-1];
+    NSInteger minor = (NSUInteger)[TiUtils intValue:[args objectForKey:@"minor"] def:-1];
+    
+    NSString *identifier = [TiUtils stringValue:[args objectForKey:@"identifier"]];
+    
+    if (!self.locationManager) {
+        self.locationManager = [[CLLocationManager alloc] init];
+        self.locationManager.delegate = self;
+    }
+    
+    CLBeaconRegion *region = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
+    [self.locationManager startMonitoringForRegion:region];
+}
+
+// Callback from CLLocationManager
+- (void) locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region
+{
+    NSLog(@"[INFO] Did start monitoring region: %@", region.identifier);
+    [self.locationManager requestStateForRegion:region];
+}
+
+// Callback from CLLocationManager
+-(void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region
+{
+    if (state == CLRegionStateUnknown) {
+        NSLog(@"[INFO] Region state unknown: %@", region.identifier);
+        return;
+    }
+    else if (state == CLRegionStateInside)
+    {
+        //Start Ranging
+        //[manager startRangingBeaconsInRegion:region.i];
+        NSLog(@"[INFO] Determined that we are in the region - can now start ranging for %@", region.identifier);
+    }
+    else
+    {
+        //Stop Ranging here
+        NSLog(@"[INFO] Determined that we are not in the region: %@", region.identifier);
+    }
+    
+    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
+                           @(state), @"regionState",
+                           region.identifier, @"identifier",
+                           nil];
+    
+    [self fireEvent:@"determinedRegionState" withObject:event];
+
+}
+
+- (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
+    
+    NSLog(@"[INFO] Entered region %@", region.identifier);
+    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
+                           region.identifier, @"identifier",
+                           nil];
+    
+    [self fireEvent:@"enteredRegion" withObject:event];
+    
+}
+
+-(void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region {
+
+    NSLog(@"[INFO] exited region %@", region.identifier);
+    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
+                           region.identifier, @"identifier",
+                           nil];
+    
+    [self fireEvent:@"exitedRegion" withObject:event];
+}
+
 
 
 #pragma mark - Beacon ranging delegate methods
@@ -250,6 +323,8 @@
         [self fireEvent:@"beaconRanges" withObject:event];
         [event release];
         
+        NSLog(@"[INFO] Reported on: %@.", region.proximityUUID.UUIDString);
+        
         [self reportCrossings:filteredBeacons inRegion:region];
     }
 }
@@ -262,16 +337,20 @@
         
         CLBeacon *previous = [self.beaconProximities objectForKey:identifier];
         if (previous) {
+            NSLog(@"[INFO] previous.proximity: %@.", [self decodeProximity:previous.proximity]);
+            NSLog(@"[INFO] current.proximity: %@.", [self decodeProximity:current.proximity]);
+            
             if (previous.proximity != current.proximity) {
                 NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeacon:current]];
                 [event setObject:region.identifier forKey:@"identifier"];
-                
                 [event setObject:[self decodeProximity:previous.proximity] forKey:@"fromProximity"];
                 
                 [self fireEvent:@"beaconProximity" withObject:event];
             }
         }
         else {
+            NSLog(@"[INFO] no previous beacon exists");
+
             NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeacon:current]];
             [event setObject:region.identifier forKey:@"identifier"];
             [self fireEvent:@"beaconProximity" withObject:event];
