@@ -172,8 +172,13 @@
     NSEnumerator *enumerator = [self.monitoringRegions keyEnumerator];
     id key;
     while (key = [enumerator nextObject]) {
-        CLBeaconRegion *region = [self.monitoringRegions objectForKey:key];
-        [self.locationManager stopMonitoringForRegion:region];
+        CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:key];
+        if (beaconRegion != nil) {
+            [self.locationManager stopMonitoringForRegion:beaconRegion];
+        }
+        else {
+            NSLog(@"[ERROR] Unable to find beaconRegion for %@.", beaconRegion);
+        }
     }
     
     [self.monitoringRegions removeAllObjects];
