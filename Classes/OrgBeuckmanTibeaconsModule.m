@@ -210,7 +210,9 @@
             CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:region.identifier];
             NSLog(@"[INFO] will autorange for region %@", region);
             NSLog(@"[INFO] will autorange for beaconRegion %@", beaconRegion);
-            [self turnOnRangingWithRegion:beaconRegion];
+            if (beaconRegion) {
+                [self turnOnRangingWithRegion:beaconRegion];
+            }
         }
         NSLog(@"[INFO] Determined that we are in the region - can now start ranging for %@", region.identifier);
     }
