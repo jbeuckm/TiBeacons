@@ -12,7 +12,6 @@
 
 @interface OrgBeuckmanTibeaconsModule ()
 
-//@property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) NSMutableDictionary *monitoringRegions;
 @property (nonatomic, strong) NSMutableDictionary *rangingRegions;
 
@@ -22,6 +21,7 @@
 @property (nonatomic, strong) NSMutableDictionary *beaconProximities;
 
 @end
+
 
 @implementation OrgBeuckmanTibeaconsModule
 
@@ -50,7 +50,7 @@
     
     self.beaconProximities = [[NSMutableDictionary alloc] init];
     
-    autoRange = YES;
+    _autoRange = NO;
 	
 	NSLog(@"[INFO] %@ loaded",self);
 }
@@ -126,15 +126,7 @@
 
 #pragma Public APIs
 
--(id)autoRange:(id)args
-{
-    return autoRange;
-}
 
--(void)setAutoRange:(BOOL)_autoRange
-{
-    autoRange = _autoRange;
-}
 
 
 
@@ -200,13 +192,9 @@
 
 -(void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region
 {
-    if (state == CLRegionStateUnknown) {
-        NSLog(@"[INFO] Region state unknown: %@", region.identifier);
-        return;
-    }
-    else if (state == CLRegionStateInside)
+    if (state == CLRegionStateInside)
     {
-        if (autoRange) {
+        if (_autoRange) {
             CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:region.identifier];
             NSLog(@"[INFO] will autorange for region %@", region);
             NSLog(@"[INFO] will autorange for beaconRegion %@", beaconRegion);
@@ -214,19 +202,26 @@
                 [self turnOnRangingWithRegion:beaconRegion];
             }
         }
-        NSLog(@"[INFO] Determined that we are in the region - can now start ranging for %@", region.identifier);
+        else {
+            NSLog(@"[INFO] will NOT autorange for region %@", region);
+        }
+        NSLog(@"[INFO] Determined INSIDE region %@", region.identifier);
     }
-    else
+    else if (state == CLRegionStateOutside)
     {
-        if (autoRange) {
+        if (_autoRange) {
             CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:region.identifier];
             [self stopRangingForRegion:beaconRegion];
         }
-        NSLog(@"[INFO] Determined that we are not in the region: %@", region.identifier);
+        NSLog(@"[INFO] Determined OUTSIDE region: %@", region.identifier);
     }
+    else {
+        NSLog(@"[INFO] Region state unknown: %@", region.identifier);
+    }
+
     
     NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
-                           @(state), @"regionState",
+                           [self decodeRegionState:state], @"regionState",
                            region.identifier, @"identifier",
                            nil];
     
@@ -241,7 +236,7 @@
                            region.identifier, @"identifier",
                            nil];
     
-    if (autoRange) {
+    if (_autoRange) {
         [self turnOnRangingWithRegion:[self.monitoringRegions objectForKey:region.identifier]];
     }
     
@@ -256,7 +251,7 @@
                            region.identifier, @"identifier",
                            nil];
     
-    if (autoRange) {
+    if (_autoRange) {
         [self stopRangingForRegion:[self.monitoringRegions objectForKey:region.identifier]];
     }
     
@@ -336,7 +331,9 @@
     id key;
     while ((key = [enumerator nextObject])) {
         CLBeaconRegion *region = [self.rangingRegions objectForKey:key];
-        [self.locationManager stopRangingBeaconsInRegion:region];
+        if (region != nil) {
+            [self.locationManager stopRangingBeaconsInRegion:region];
+        }
     }
     
     [self.rangingRegions removeAllObjects];
@@ -365,6 +362,15 @@
 
 
 #pragma mark - Beacon ranging delegate methods
+
+- (void)enableAutoRanging:(id)args
+{
+    _autoRange = YES;
+}
+- (void)disableAutoRanging:(id)args
+{
+    _autoRange = NO;
+}
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
@@ -498,6 +504,22 @@
             return @"far";
             break;
         case CLProximityUnknown:
+        default:
+            return @"unknown";
+            break;
+    }
+    
+}
+- (NSString *)decodeRegionState:(int)state
+{
+    switch (state) {
+        case CLRegionStateInside:
+            return @"inside";
+            break;
+        case CLRegionStateOutside:
+            return @"outside";
+            break;
+        case CLRegionStateUnknown:
         default:
             return @"unknown";
             break;
