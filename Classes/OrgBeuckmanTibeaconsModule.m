@@ -56,7 +56,6 @@
 }
 
 - (CLLocationManager *)locationManager {
-    NSLog(@"MapViewController - locationManager");
     if (_locationManager) {
         return _locationManager;
     } else {
@@ -146,8 +145,6 @@
 {
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
- 
-    NSLog(@"[INFO] Turning on region monitoring...");
 
     NSString *uuid = [TiUtils stringValue:[args objectForKey:@"uuid"]];
     NSInteger major = (NSUInteger)[TiUtils intValue:[args objectForKey:@"major"] def:-1];
@@ -156,6 +153,8 @@
     NSString *identifier = [TiUtils stringValue:[args objectForKey:@"identifier"]];
     
     CLBeaconRegion *region = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
+    
+    NSLog(@"[INFO] Turning on region monitoring in %@", region);
 
     [self.monitoringRegions setObject:region forKey:region.identifier];
     
@@ -172,12 +171,14 @@
     NSEnumerator *enumerator = [self.monitoringRegions keyEnumerator];
     id key;
     while (key = [enumerator nextObject]) {
+        
         CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:key];
+        
         if (beaconRegion != nil) {
             [self.locationManager stopMonitoringForRegion:beaconRegion];
         }
         else {
-            NSLog(@"[ERROR] Unable to find beaconRegion for %@.", beaconRegion);
+            NSLog(@"[ERROR] stopMonitoringAllRegions() Unable to find beaconRegion for %@.", beaconRegion);
         }
     }
     
@@ -207,6 +208,8 @@
     {
         if (autoRange) {
             CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:region.identifier];
+            NSLog(@"[INFO] will autorange for region %@", region);
+            NSLog(@"[INFO] will autorange for beaconRegion %@", beaconRegion);
             [self turnOnRangingWithRegion:beaconRegion];
         }
         NSLog(@"[INFO] Determined that we are in the region - can now start ranging for %@", region.identifier);
@@ -289,7 +292,7 @@
 
 - (void)turnOnRangingWithRegion:(CLBeaconRegion *)beaconRegion
 {
-    NSLog(@"[INFO] Turning on ranging...");
+    NSLog(@"[INFO] Turning on ranging for %@", beaconRegion);
     
     if (![CLLocationManager isRangingAvailable]) {
         NSLog(@"[INFO] Couldn't turn on ranging: Ranging is not available.");
