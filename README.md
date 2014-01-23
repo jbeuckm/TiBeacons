@@ -19,10 +19,11 @@ TiBeacons.startAdvertisingBeacon({
 });
 ```
 
-Start scanning for iBeacons in one or more regions:
+Start monitoring for iBeacons in one or more regions:
 
 ```javascript
-TiBeacons.startRangingForBeacons({
+
+TiBeacons.startMonitoringForRegion({
     uuid : "00000000-0000-0000-0000-000000000000",
     identifier : "Test Region 1",
 });
@@ -41,6 +42,20 @@ TiBeacons.startRangingForBeacons({
 });
 ```
 
+Listen for region events:
+
+```javascript
+TiBeacons.addEventListener("enteredRegion", alert);
+TiBeacons.addEventListener("exitedRegion", alert);
+TiBeacons.addEventListener("determinedRegionState", alert);
+```
+
+If auto-ranging is enabled, the module will automatically start ranging when a region is entered.
+
+```javascript
+TiBeacons.enableAutoRanging();
+```
+
 Listen for the range events:
 
 ```javascript
@@ -57,5 +72,3 @@ TiBeacons.addEventListener("beaconProximity", function(e){
 });
 ```
 
-#### Coming soon: ####
-I'm working now to implement the Monitoring API for iBeacons.
