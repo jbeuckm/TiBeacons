@@ -52,9 +52,9 @@ addListeners();
 
 
 
-function toggleMonitoring() {
+function toggleMonitoring(monitor) {
 
-    if ($.monitoringSwitch.value) {
+    if (monitor) {
         TiBeacons.startMonitoringForRegion({
             uuid : "00000000-0000-0000-0000-000000000000",
             identifier : "Test Region 1"
