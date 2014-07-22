@@ -237,7 +237,12 @@
                            nil];
     
     if (_autoRange) {
-        [self turnOnRangingWithRegion:[self.monitoringRegions objectForKey:region.identifier]];
+        CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:region.identifier];
+        if (beaconRegion) {
+            [self turnOnRangingWithRegion:beaconRegion];
+        } else {
+            NSLog(@"[INFO] Cannot find beaconRegion to range");
+        }
     }
     
     [self fireEvent:@"enteredRegion" withObject:event];
@@ -293,6 +298,11 @@
     
     if (![CLLocationManager isRangingAvailable]) {
         NSLog(@"[INFO] Couldn't turn on ranging: Ranging is not available.");
+        return;
+    }
+    
+    if (beaconRegion == nil) {
+        NSLog(@"[ERROR] Unable to find beaconRegion for beaconRegion");
         return;
     }
     
