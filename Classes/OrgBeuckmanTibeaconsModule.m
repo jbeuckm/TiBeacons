@@ -144,6 +144,7 @@
     for (CLBeaconRegion *region in regions) {
         [_locationManager stopMonitoringForRegion:region];
     }
+    [regions release];
     
     NSLog(@"[INFO] Turned off monitoring in ALL regions.");
 }
@@ -289,6 +290,7 @@
     for (CLBeaconRegion *region in regions) {
         [self.locationManager stopRangingBeaconsInRegion:region];
     }
+    [regions release];
     
     NSLog(@"[INFO] Turned off ranging in ALL regions.");
 }
