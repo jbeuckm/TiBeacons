@@ -9,7 +9,6 @@
 #import "TiHost.h"
 #import "TiUtils.h"
 
-
 @interface OrgBeuckmanTibeaconsModule ()
 
 @property (nonatomic, strong) NSMutableDictionary *monitoringRegions;
@@ -187,6 +186,8 @@
 {
     NSLog(@"[INFO] Did start monitoring region: %@", region.identifier);
     [self.locationManager requestStateForRegion:region];
+    
+    [self.locationManager startRangingBeaconsInRegion:region];
 }
 
 
