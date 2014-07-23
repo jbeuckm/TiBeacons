@@ -11,7 +11,11 @@
 
 @interface OrgBeuckmanTibeaconsModule : TiModule <CLLocationManagerDelegate, CBPeripheralManagerDelegate>
 {
-    CLLocationManager *_locationManager;
+    CBPeripheralManager *peripheralManager;
+    CLBeaconRegion *beaconRegion;
+    
+    NSMutableDictionary *beaconProximities;    CLLocationManager *_locationManager;
+
     BOOL _autoRange;
 }
 

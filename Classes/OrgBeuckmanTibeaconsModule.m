@@ -12,13 +12,6 @@
 
 @interface OrgBeuckmanTibeaconsModule ()
 
-@property (nonatomic, strong) NSMutableDictionary *monitoringRegions;
-@property (nonatomic, strong) NSMutableDictionary *rangingRegions;
-
-@property (nonatomic, strong) CBPeripheralManager *peripheralManager;
-@property (nonatomic, strong) CLBeaconRegion *beaconRegion;
-
-@property (nonatomic, strong) NSMutableDictionary *beaconProximities;
 
 @end
 
@@ -45,10 +38,7 @@
 {
 	[super startup];
     
-    self.monitoringRegions = [[NSMutableDictionary alloc] init];
-    self.rangingRegions = [[NSMutableDictionary alloc] init];
-    
-    self.beaconProximities = [[NSMutableDictionary alloc] init];
+    beaconProximities = [[NSMutableDictionary alloc] init];
     
     _autoRange = NO;
 	
@@ -79,15 +69,13 @@
 
 -(void)dealloc
 {
-    [self.rangingRegions release];
-    [self.monitoringRegions release];
-    [self.beaconProximities release];
+    [beaconProximities release];
     
     if (_locationManager) {
         [_locationManager release];
     }
-    if (self.peripheralManager) {
-        [self.peripheralManager release];
+    if (peripheralManager) {
+        [peripheralManager release];
     }
     
 	// release any resources that have been retained by the module
@@ -129,8 +117,6 @@
 
 
 
-
-
 #pragma mark - Beacon monitoring
 
 - (void)startMonitoringForRegion:(id)args
@@ -148,33 +134,16 @@
     
     NSLog(@"[INFO] Turning on region monitoring in %@", region);
 
-    [self.monitoringRegions setObject:region forKey:region.identifier];
-    
     [self.locationManager startMonitoringForRegion:region];
 }
 
 -(void)stopMonitoringAllRegions:(id)args
 {
-    if (self.locationManager.monitoredRegions.count == 0) {
-        NSLog(@"[INFO] Didn't turn off monitoring: Monitoring already off.");
-        return;
-    }
+    NSArray *regions = [_locationManager.monitoredRegions allObjects];
     
-    NSEnumerator *enumerator = [self.monitoringRegions keyEnumerator];
-    id key;
-    while (key = [enumerator nextObject]) {
-        
-        CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:key];
-        
-        if (beaconRegion != nil) {
-            [self.locationManager stopMonitoringForRegion:beaconRegion];
-        }
-        else {
-            NSLog(@"[ERROR] stopMonitoringAllRegions() Unable to find beaconRegion for %@.", beaconRegion);
-        }
+    for (CLBeaconRegion *region in regions) {
+        [_locationManager stopMonitoringForRegion:region];
     }
-    
-    [self.monitoringRegions removeAllObjects];
     
     NSLog(@"[INFO] Turned off monitoring in ALL regions.");
 }
@@ -195,30 +164,21 @@
     if (state == CLRegionStateInside)
     {
         if (_autoRange) {
-            CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:region.identifier];
             NSLog(@"[INFO] will autorange for region %@", region);
-            NSLog(@"[INFO] will autorange for beaconRegion %@", beaconRegion);
-            if (beaconRegion) {
-                [self turnOnRangingWithRegion:beaconRegion];
-            }
+            [self turnOnRangingWithRegion:region];
         }
         else {
             NSLog(@"[INFO] will NOT autorange for region %@", region);
         }
         NSLog(@"[INFO] Determined INSIDE region %@", region.identifier);
     }
-    else if (state == CLRegionStateOutside)
+    else
     {
         if (_autoRange) {
-            CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:region.identifier];
-            [self stopRangingForRegion:beaconRegion];
+            [self stopRangingForRegion:region];
         }
-        NSLog(@"[INFO] Determined OUTSIDE region: %@", region.identifier);
+        NSLog(@"[INFO] Determined NOT INSIDE region: %@", region.identifier);
     }
-    else {
-        NSLog(@"[INFO] Region state unknown: %@", region.identifier);
-    }
-
     
     NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
                            [self decodeRegionState:state], @"regionState",
@@ -237,12 +197,7 @@
                            nil];
     
     if (_autoRange) {
-        CLBeaconRegion *beaconRegion = [self.monitoringRegions objectForKey:region.identifier];
-        if (beaconRegion) {
-            [self turnOnRangingWithRegion:beaconRegion];
-        } else {
-            NSLog(@"[INFO] Cannot find beaconRegion to range");
-        }
+        [self turnOnRangingWithRegion:region];
     }
     
     [self fireEvent:@"enteredRegion" withObject:event];
@@ -257,7 +212,7 @@
                            nil];
     
     if (_autoRange) {
-        [self stopRangingForRegion:[self.monitoringRegions objectForKey:region.identifier]];
+        [self stopRangingForRegion:region];
     }
     
     [self fireEvent:@"exitedRegion" withObject:event];
@@ -271,46 +226,39 @@
 {
     
     NSUUID *proximityUUID = [[NSUUID alloc] initWithUUIDString:uuid];
-    CLBeaconRegion *beaconRegion;
+    CLBeaconRegion *region;
     
     if (major != -1 && minor != -1) {
-        beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID major:major minor:minor identifier:identifier];
+        region = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID major:major minor:minor identifier:identifier];
     }
     else if (major != -1) {
-        beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID major:major identifier:identifier];
+        region = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID major:major identifier:identifier];
     }
     else {
-        beaconRegion = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID identifier:identifier];
+        region = [[CLBeaconRegion alloc] initWithProximityUUID:proximityUUID identifier:identifier];
     }
     
     [proximityUUID release];
     
-    beaconRegion.notifyEntryStateOnDisplay = true;
-    beaconRegion.notifyOnEntry = true;
-    beaconRegion.notifyOnExit = true;
+    region.notifyEntryStateOnDisplay = true;
+    region.notifyOnEntry = true;
+    region.notifyOnExit = true;
     
-    return [beaconRegion autorelease];
+    return [region autorelease];
 }
 
-- (void)turnOnRangingWithRegion:(CLBeaconRegion *)beaconRegion
+- (void)turnOnRangingWithRegion:(CLBeaconRegion *)region
 {
-    NSLog(@"[INFO] Turning on ranging for %@", beaconRegion);
+    NSLog(@"[INFO] Turning on ranging for %@", region);
     
     if (![CLLocationManager isRangingAvailable]) {
         NSLog(@"[INFO] Couldn't turn on ranging: Ranging is not available.");
         return;
     }
     
-    if (beaconRegion == nil) {
-        NSLog(@"[ERROR] Unable to find beaconRegion for beaconRegion");
-        return;
-    }
+    [self.locationManager startRangingBeaconsInRegion:region];
     
-    [self.rangingRegions setObject:beaconRegion forKey:beaconRegion.identifier];
-    
-    [self.locationManager startRangingBeaconsInRegion:beaconRegion];
-    
-    NSLog(@"[INFO] Ranging turned on for region: %@.", beaconRegion);
+    NSLog(@"[INFO] Ranging turned on for region: %@.", region);
 }
 
 
@@ -337,16 +285,10 @@
         return;
     }
     
-    NSEnumerator *enumerator = [self.rangingRegions keyEnumerator];
-    id key;
-    while ((key = [enumerator nextObject])) {
-        CLBeaconRegion *region = [self.rangingRegions objectForKey:key];
-        if (region != nil) {
-            [self.locationManager stopRangingBeaconsInRegion:region];
-        }
+    NSArray *regions = [_locationManager.rangedRegions allObjects];
+    for (CLBeaconRegion *region in regions) {
+        [self.locationManager stopRangingBeaconsInRegion:region];
     }
-    
-    [self.rangingRegions removeAllObjects];
     
     NSLog(@"[INFO] Turned off ranging in ALL regions.");
 }
@@ -355,18 +297,10 @@
 - (void)stopRangingForRegion:(CLRegion *)region
 {
     NSLog(@"[INFO] stopRangingForRegion %@", region);
-    
-    CLBeaconRegion *beaconRegion = [self.rangingRegions objectForKey:region.identifier];
-    
-    if (beaconRegion == nil) {
-        NSLog(@"[ERROR] Unable to find beaconRegion for %@.", region);
-        return;
-    }
 
-    [self.locationManager stopRangingBeaconsInRegion:beaconRegion];
-    [self.rangingRegions removeObjectForKey:region.identifier];
+    [self.locationManager stopRangingBeaconsInRegion:region];
     
-    NSLog(@"[INFO] Turned off ranging for %@.", beaconRegion.identifier);
+    NSLog(@"[INFO] Turned off ranging for %@.", region.identifier);
 }
 
 
@@ -436,7 +370,7 @@
         CLBeacon *current = [beacons objectAtIndex:index];
         NSString *identifier = [NSString stringWithFormat:@"%@/%@/%@", current.proximityUUID.UUIDString, current.major, current.minor];
         
-        CLBeacon *previous = [self.beaconProximities objectForKey:identifier];
+        CLBeacon *previous = [beaconProximities objectForKey:identifier];
         if (previous) {
             
             if (previous.proximity != current.proximity) {
@@ -455,7 +389,7 @@
             [self fireEvent:@"beaconProximity" withObject:event];
         }
 
-        [self.beaconProximities setObject:current forKey:identifier];
+        [beaconProximities setObject:current forKey:identifier];
     }
 }
 
@@ -493,7 +427,7 @@
                              [NSString stringWithFormat:@"%@", beacon.minor], @"minor",
                              proximity, @"proximity",
                              [NSString stringWithFormat:@"%f", beacon.accuracy], @"accuracy",
-                             [NSString stringWithFormat:@"%d", beacon.rssi], @"rssi",
+                             [NSString stringWithFormat:@"%d", (long)beacon.rssi], @"rssi",
                              nil
                              ];
     
@@ -542,15 +476,15 @@
 
 - (void)turnOnAdvertising
 {
-    if (self.peripheralManager.state != CBPeripheralManagerStatePoweredOn) {
+    if (peripheralManager.state != CBPeripheralManagerStatePoweredOn) {
         NSLog(@"[INFO] Peripheral manager is off.");
         return;
     }
 
-    NSDictionary *beaconPeripheralData = [self.beaconRegion peripheralDataWithMeasuredPower:nil];
-    [self.peripheralManager startAdvertising:beaconPeripheralData];
+    NSDictionary *beaconPeripheralData = [beaconRegion peripheralDataWithMeasuredPower:nil];
+    [peripheralManager startAdvertising:beaconPeripheralData];
     
-    NSLog(@"[INFO] Turning on advertising for region: %@.", self.beaconRegion);
+    NSLog(@"[INFO] Turning on advertising for region: %@.", beaconRegion);
 }
 
 
@@ -567,11 +501,11 @@
 
     NSLog(@"[INFO] Turning on advertising...");
     
-    self.beaconRegion = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
-    [self.beaconRegion retain];
+    beaconRegion = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
+    [beaconRegion retain];
     
-    if (!self.peripheralManager) {
-        self.peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil options:nil];
+    if (!peripheralManager) {
+        peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil options:nil];
     }
     
     [self turnOnAdvertising];
@@ -580,13 +514,13 @@
 - (void)stopAdvertisingBeacon:(id)args
 {
     
-    if (self.peripheralManager) {
+    if (peripheralManager) {
         
-        if (self.peripheralManager.state == CBPeripheralManagerStatePoweredOn){
+        if (peripheralManager.state == CBPeripheralManagerStatePoweredOn){
             
-            [self.peripheralManager stopAdvertising];
+            [peripheralManager stopAdvertising];
             
-            [self.beaconRegion release];
+            [beaconRegion release];
             
             NSLog(@"[INFO] Turned off advertising.");
         }else{
