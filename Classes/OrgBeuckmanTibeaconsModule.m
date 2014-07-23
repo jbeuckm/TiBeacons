@@ -165,7 +165,7 @@
     {
         if (_autoRange) {
             NSLog(@"[INFO] will autorange for region %@", region);
-            [self turnOnRangingWithRegion:region];
+            [self turnOnRangingWithRegion:(CLBeaconRegion *)region];
         }
         else {
             NSLog(@"[INFO] will NOT autorange for region %@", region);
@@ -197,7 +197,7 @@
                            nil];
     
     if (_autoRange) {
-        [self turnOnRangingWithRegion:region];
+        [self turnOnRangingWithRegion:(CLBeaconRegion *)region];
     }
     
     [self fireEvent:@"enteredRegion" withObject:event];
@@ -298,7 +298,7 @@
 {
     NSLog(@"[INFO] stopRangingForRegion %@", region);
 
-    [self.locationManager stopRangingBeaconsInRegion:region];
+    [self.locationManager stopRangingBeaconsInRegion:(CLBeaconRegion *)region];
     
     NSLog(@"[INFO] Turned off ranging for %@.", region.identifier);
 }
@@ -427,7 +427,7 @@
                              [NSString stringWithFormat:@"%@", beacon.minor], @"minor",
                              proximity, @"proximity",
                              [NSString stringWithFormat:@"%f", beacon.accuracy], @"accuracy",
-                             [NSString stringWithFormat:@"%d", (long)beacon.rssi], @"rssi",
+                             [NSString stringWithFormat:@"%ld", (long)beacon.rssi], @"rssi",
                              nil
                              ];
     
@@ -531,7 +531,7 @@
 
 #pragma mark - Beacon advertising delegate methods
 
-- (void)peripheralManagerDidStartAdvertising:(CBPeripheralManager *)peripheralManager error:(NSError *)error
+- (void)peripheralManagerDidStartAdvertising:(CBPeripheralManager *)pManager error:(NSError *)error
 {
     if (error) {
         NSLog(@"[INFO] Couldn't turn on advertising: %@", error);
@@ -539,7 +539,7 @@
         return;
     }
     
-    if (peripheralManager.isAdvertising) {
+    if (pManager.isAdvertising) {
         NSLog(@"[INFO] Turned on advertising.");
         
         NSDictionary *status = [[NSDictionary alloc] initWithObjectsAndKeys: @"on", @"status", nil];
@@ -549,9 +549,9 @@
     }
 }
 
-- (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheralManager
+- (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)pManager
 {
-    if (peripheralManager.state != CBPeripheralManagerStatePoweredOn) {
+    if (pManager.state != CBPeripheralManagerStatePoweredOn) {
         NSLog(@"[INFO] Peripheral manager is off.");
         return;
     }
