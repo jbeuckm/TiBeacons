@@ -114,7 +114,10 @@
 
 #pragma Public APIs
 
-
+- (id)authorizationStatus
+{
+    return [self decodeAuthorizationStatus:[CLLocationManager authorizationStatus]];
+}
 
 
 #pragma mark - Beacon monitoring
@@ -139,10 +142,10 @@
 
 -(void)stopMonitoringAllRegions:(id)args
 {
-    NSArray *regions = [_locationManager.monitoredRegions allObjects];
+    NSArray *regions = [[self locationManager].monitoredRegions allObjects];
     
     for (CLBeaconRegion *region in regions) {
-        [_locationManager stopMonitoringForRegion:region];
+        [[self locationManager] stopMonitoringForRegion:region];
     }
     [regions release];
     
@@ -152,6 +155,25 @@
 
 
 #pragma mark - Beacon monitoring delegate methods
+
+- (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+        if (![CLLocationManager locationServicesEnabled]) {
+            NSLog(@"[ERROR] Location services are not enabled.");
+        }
+        
+        if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorized) {
+            NSLog(@"[ERROR] Location services not authorized.");
+        }
+    
+
+    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
+                           [self decodeAuthorizationStatus:[CLLocationManager authorizationStatus]], @"status",
+                           nil];
+    
+    [self fireEvent:@"changeAuthorizationStatus" withObject:event];
+}
+
 
 - (void) locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region
 {
@@ -173,12 +195,15 @@
         }
         NSLog(@"[INFO] Determined INSIDE region %@", region.identifier);
     }
-    else
+    else if (state == CLRegionStateOutside)
     {
         if (_autoRange) {
             [self stopRangingForRegion:region];
         }
-        NSLog(@"[INFO] Determined NOT INSIDE region: %@", region.identifier);
+        NSLog(@"[INFO] Determined OUTSIDE region: %@", region.identifier);
+    }
+    else {
+        NSLog(@"[INFO] Determined UNKNOWN STATE region: %@", region.identifier);
     }
     
     NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
@@ -286,7 +311,7 @@
         return;
     }
     
-    NSArray *regions = [_locationManager.rangedRegions allObjects];
+    NSArray *regions = [[self locationManager].rangedRegions allObjects];
     for (CLBeaconRegion *region in regions) {
         [self.locationManager stopRangingBeaconsInRegion:region];
     }
@@ -318,19 +343,7 @@
     _autoRange = NO;
 }
 
-- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
-{
-    if (![CLLocationManager locationServicesEnabled]) {
-        NSLog(@"[INFO] Couldn't turn on ranging: Location services are not enabled.");
-        return;
-    }
-    
-    if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorized) {
-        NSLog(@"[INFO] Couldn't turn on ranging: Location services not authorised.");
-        return;
-    }
-    
-}
+
 
 - (void)locationManager:(CLLocationManager *)manager
         didRangeBeacons:(NSArray *)beacons
@@ -436,6 +449,18 @@
     return [details autorelease];
 }
 
+
+- (NSString *)decodeAuthorizationStatus:(int)authStatus
+{
+    switch (authStatus) {
+        case kCLAuthorizationStatusAuthorized:
+            return @"authorized";
+            break;
+        default:
+            return @"unauthorized";
+            break;
+    }
+}
 
 - (NSString *)decodeProximity:(int)proximity
 {
