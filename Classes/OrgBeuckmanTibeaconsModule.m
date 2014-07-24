@@ -285,6 +285,12 @@
     
     CLBeaconRegion *region = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
     
+    NSString *notify = [TiUtils stringValue:[args objectForKey:@"notifyEntryStateOnDisplay"]];
+    if (notify && [notify isEqualToString:@"YES"]) {
+        region.notifyEntryStateOnDisplay = YES;
+        NSLog(@"[INFO] notifyEntryStateOnDisplay ON");
+    }
+    
     return region;
 }
 
