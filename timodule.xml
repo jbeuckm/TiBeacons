@@ -5,6 +5,19 @@
 		configuration in <iphone>, <android>, and <mobileweb> sections
 	-->
 	<iphone>
+
+	  <!-- Wouldn't it be great if this got transferred into tiapp.xml!? -->
+	  <plist>
+            <dict>
+              <key>UIBackgroundModes</key>
+              <array>
+		<string>location</string>
+		<string>bluetooth-central</string>
+		<string>bluetooth-peripheral</string>
+              </array>
+	    </dict>
+	  </plist>
+
 	</iphone>
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
 	</android>
