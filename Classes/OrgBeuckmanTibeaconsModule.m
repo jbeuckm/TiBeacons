@@ -144,11 +144,7 @@
 
 - (void)locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error
 {
-    NSLog(@"[ERROR] monitoringDidFailForRegion");
-}
-- (void)locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region withError:(NSError *)error
-{
-    NSLog(@"[ERROR] rangingBeaconsDidFailForRegion");
+    [self fireEvent:@"monitoringDidFailForRegion"];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
@@ -174,6 +170,8 @@
 {
     NSLog(@"[INFO] Did start monitoring region: %@", region.identifier);
     [self.locationManager requestStateForRegion:region];
+    
+    [self fireEvent:@"didStartMonitoringForRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
 }
 
 
@@ -323,6 +321,11 @@
 
 
 #pragma mark - Beacon ranging delegate methods
+
+- (void)locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region withError:(NSError *)error
+{
+    [self fireEvent:@"rangingBeaconsDidFailForRegion"];
+}
 
 - (void)enableAutoRanging:(id)args
 {
