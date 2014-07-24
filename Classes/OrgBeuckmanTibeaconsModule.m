@@ -1,9 +1,3 @@
-/**
- * Your Copyright Here
- *
- * Appcelerator Titanium is Copyright (c) 2009-2010 by Appcelerator, Inc.
- * and licensed under the Apache Public License (version 2)
- */
 #import "OrgBeuckmanTibeaconsModule.h"
 #import "TiBase.h"
 #import "TiHost.h"
@@ -40,8 +34,6 @@
     
     beaconProximities = [[NSMutableDictionary alloc] init];
     
-    _autoRange = NO;
-	
 	NSLog(@"[INFO] %@ loaded",self);
 }
 
@@ -127,13 +119,7 @@
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
 
-    NSString *uuid = [TiUtils stringValue:[args objectForKey:@"uuid"]];
-    NSInteger major = (NSUInteger)[TiUtils intValue:[args objectForKey:@"major"] def:-1];
-    NSInteger minor = (NSUInteger)[TiUtils intValue:[args objectForKey:@"minor"] def:-1];
-    
-    NSString *identifier = [TiUtils stringValue:[args objectForKey:@"identifier"]];
-    
-    CLBeaconRegion *region = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
+    CLBeaconRegion *region = [self regionForArgs:args];
     
     NSLog(@"[INFO] Turning on region monitoring in %@", region);
 
@@ -155,6 +141,15 @@
 
 
 #pragma mark - Beacon monitoring delegate methods
+
+- (void)locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error
+{
+    NSLog(@"[ERROR] monitoringDidFailForRegion");
+}
+- (void)locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region withError:(NSError *)error
+{
+    NSLog(@"[ERROR] rangingBeaconsDidFailForRegion");
+}
 
 - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
@@ -186,24 +181,14 @@
 {
     if (state == CLRegionStateInside)
     {
-        if (_autoRange) {
-            NSLog(@"[INFO] will autorange for region %@", region);
-            [self turnOnRangingWithRegion:(CLBeaconRegion *)region];
-        }
-        else {
-            NSLog(@"[INFO] will NOT autorange for region %@", region);
-        }
-        NSLog(@"[INFO] Determined INSIDE region %@", region.identifier);
+        NSLog(@"[INFO] State INSIDE region %@", region.identifier);
     }
     else if (state == CLRegionStateOutside)
     {
-        if (_autoRange) {
-//            [self stopRangingForRegion:region];
-        }
-        NSLog(@"[INFO] Determined OUTSIDE region: %@", region.identifier);
+        NSLog(@"[INFO] State OUTSIDE region: %@", region.identifier);
     }
     else {
-        NSLog(@"[INFO] Determined UNKNOWN STATE region: %@", region.identifier);
+        NSLog(@"[INFO] State UNKNOWN region: %@", region.identifier);
     }
     
     NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
@@ -216,11 +201,7 @@
 - (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
     
     NSLog(@"[INFO] Entered region %@", region.identifier);
-    
-    if (_autoRange) {
-        [self turnOnRangingWithRegion:(CLBeaconRegion *)region];
-    }
-    
+
     [self fireEvent:@"enteredRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
     
 }
@@ -229,10 +210,6 @@
 
     NSLog(@"[INFO] exited region %@", region.identifier);
 
-    if (_autoRange) {
-        [self stopRangingForRegion:region];
-    }
-    
     [self fireEvent:@"exitedRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
 }
 
@@ -285,6 +262,21 @@
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
+    
+    [self turnOnRangingWithRegion:[self regionForArgs:args]];
+}
+
+- (void)stopRangingForBeacons:(id)args
+{
+    ENSURE_UI_THREAD_1_ARG(args);
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+    
+    
+    [self stopRangingForRegion:[self regionForArgs:args]];
+}
+
+- (CLBeaconRegion *)regionForArgs:(id)args
+{
     NSString *uuid = [TiUtils stringValue:[args objectForKey:@"uuid"]];
     NSInteger major = (NSUInteger)[TiUtils intValue:[args objectForKey:@"major"] def:-1];
     NSInteger minor = (NSUInteger)[TiUtils intValue:[args objectForKey:@"minor"] def:-1];
@@ -293,7 +285,7 @@
     
     CLBeaconRegion *region = [self createBeaconRegionWithUUID:uuid major:major minor:minor identifier:identifier];
     
-    [self turnOnRangingWithRegion:region];
+    return region;
 }
 
 - (void)stopRangingForAllBeacons:(id)args
@@ -328,13 +320,12 @@
 
 - (void)enableAutoRanging:(id)args
 {
-    _autoRange = YES;
+    NSLog(@"[ERROR] Auto-ranging is deprecated in version 0.8");
 }
 - (void)disableAutoRanging:(id)args
 {
-    _autoRange = NO;
+    NSLog(@"[ERROR] Auto-ranging is deprecated in version 0.8");
 }
-
 
 
 - (void)locationManager:(CLLocationManager *)manager
@@ -443,15 +434,20 @@
 - (NSDictionary *)detailsForBeaconRegion:(CLBeaconRegion *)region
 {
     
-    NSDictionary *details = [[NSDictionary alloc] initWithObjectsAndKeys:
+    NSMutableDictionary *details = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                              region.identifier, @"identifier",
                              region.proximityUUID.UUIDString, @"uuid",
-                             [NSString stringWithFormat:@"%@", region.major], @"major",
-                             [NSString stringWithFormat:@"%@", region.minor], @"minor",
                              nil
                              ];
+
+    if (region.major) {
+        [details setObject:[NSString stringWithFormat:@"%@", region.major] forKey:@"major"];
+    }
+    if (region.minor) {
+        [details setObject:[NSString stringWithFormat:@"%@", region.minor] forKey:@"minor"];
+    }
     
-    return [details autorelease];
+    return details;
 }
 
 - (NSString *)decodeAuthorizationStatus:(int)authStatus

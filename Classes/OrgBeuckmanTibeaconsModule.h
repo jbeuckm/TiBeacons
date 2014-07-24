@@ -15,8 +15,6 @@
     CLBeaconRegion *beaconRegion;
     
     NSMutableDictionary *beaconProximities;    CLLocationManager *_locationManager;
-
-    BOOL _autoRange;
 }
 
 @end
