@@ -2,9 +2,9 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 0.7
+version: 0.71
 apiversion: 2
-description: Implements iBeacon advertising, monitoring and ranging
+description: Implements iBeacon monitoring and ranging and advertising
 author: Joe Beuckman
 license: No
 copyright: No

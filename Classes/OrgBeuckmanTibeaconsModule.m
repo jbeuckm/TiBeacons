@@ -198,7 +198,7 @@
     else if (state == CLRegionStateOutside)
     {
         if (_autoRange) {
-            [self stopRangingForRegion:region];
+//            [self stopRangingForRegion:region];
         }
         NSLog(@"[INFO] Determined OUTSIDE region: %@", region.identifier);
     }
@@ -206,10 +206,8 @@
         NSLog(@"[INFO] Determined UNKNOWN STATE region: %@", region.identifier);
     }
     
-    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
-                           [self decodeRegionState:state], @"regionState",
-                           region.identifier, @"identifier",
-                           nil];
+    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
+    [event setObject:[self decodeRegionState:state] forKey:@"regionState"];
     
     [self fireEvent:@"determinedRegionState" withObject:event];
 
@@ -218,30 +216,24 @@
 - (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
     
     NSLog(@"[INFO] Entered region %@", region.identifier);
-    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
-                           region.identifier, @"identifier",
-                           nil];
     
     if (_autoRange) {
         [self turnOnRangingWithRegion:(CLBeaconRegion *)region];
     }
     
-    [self fireEvent:@"enteredRegion" withObject:event];
+    [self fireEvent:@"enteredRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
     
 }
 
 -(void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region {
 
     NSLog(@"[INFO] exited region %@", region.identifier);
-    NSDictionary *event = [[NSDictionary alloc] initWithObjectsAndKeys:
-                           region.identifier, @"identifier",
-                           nil];
-    
+
     if (_autoRange) {
         [self stopRangingForRegion:region];
     }
     
-    [self fireEvent:@"exitedRegion" withObject:event];
+    [self fireEvent:@"exitedRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
 }
 
 
@@ -448,7 +440,19 @@
     
     return [details autorelease];
 }
-
+- (NSDictionary *)detailsForBeaconRegion:(CLBeaconRegion *)region
+{
+    
+    NSDictionary *details = [[NSDictionary alloc] initWithObjectsAndKeys:
+                             region.identifier, @"identifier",
+                             region.proximityUUID.UUIDString, @"uuid",
+                             [NSString stringWithFormat:@"%@", region.major], @"major",
+                             [NSString stringWithFormat:@"%@", region.minor], @"minor",
+                             nil
+                             ];
+    
+    return [details autorelease];
+}
 
 - (NSString *)decodeAuthorizationStatus:(int)authStatus
 {
