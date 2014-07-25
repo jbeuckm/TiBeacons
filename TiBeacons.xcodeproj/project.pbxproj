@@ -26,6 +26,8 @@
 		24DD6CFA1134B3F500162E58 /* OrgBeuckmanTibeaconsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* OrgBeuckmanTibeaconsModule.m */; };
 		24DE9E1111C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DE9E0F11C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.h */; };
 		24DE9E1211C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DE9E1011C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.m */; };
+		6E82B1931982DCA0005513B8 /* LocationManagerDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E82B1911982DCA0005513B8 /* LocationManagerDelegateProxy.h */; };
+		6E82B1941982DCA0005513B8 /* LocationManagerDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E82B1921982DCA0005513B8 /* LocationManagerDelegateProxy.m */; };
 		AA747D9F0F9514B9006C5449 /* OrgBeuckmanTibeacons_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* OrgBeuckmanTibeacons_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		D87CB613181B3E2F00D08EBC /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D87CB60D181B3E2F00D08EBC /* CoreLocation.framework */; };
@@ -48,6 +50,8 @@
 		24DD6D1B1134B66800162E58 /* titanium.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
 		24DE9E0F11C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OrgBeuckmanTibeaconsModuleAssets.h; path = Classes/OrgBeuckmanTibeaconsModuleAssets.h; sourceTree = "<group>"; };
 		24DE9E1011C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OrgBeuckmanTibeaconsModuleAssets.m; path = Classes/OrgBeuckmanTibeaconsModuleAssets.m; sourceTree = "<group>"; };
+		6E82B1911982DCA0005513B8 /* LocationManagerDelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LocationManagerDelegateProxy.h; path = Classes/LocationManagerDelegateProxy.h; sourceTree = "<group>"; };
+		6E82B1921982DCA0005513B8 /* LocationManagerDelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LocationManagerDelegateProxy.m; path = Classes/LocationManagerDelegateProxy.m; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* OrgBeuckmanTibeacons_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrgBeuckmanTibeacons_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libOrgBeuckmanTibeacons.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOrgBeuckmanTibeacons.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,6 +109,8 @@
 				24DE9E1011C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.m */,
 				24DD6CF71134B3F500162E58 /* OrgBeuckmanTibeaconsModule.h */,
 				24DD6CF81134B3F500162E58 /* OrgBeuckmanTibeaconsModule.m */,
+				6E82B1911982DCA0005513B8 /* LocationManagerDelegateProxy.h */,
+				6E82B1921982DCA0005513B8 /* LocationManagerDelegateProxy.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -125,6 +131,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E82B1931982DCA0005513B8 /* LocationManagerDelegateProxy.h in Headers */,
 				AA747D9F0F9514B9006C5449 /* OrgBeuckmanTibeacons_Prefix.pch in Headers */,
 				24DD6CF91134B3F500162E58 /* OrgBeuckmanTibeaconsModule.h in Headers */,
 				24DE9E1111C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.h in Headers */,
@@ -202,6 +209,7 @@
 			files = (
 				24DD6CFA1134B3F500162E58 /* OrgBeuckmanTibeaconsModule.m in Sources */,
 				24DE9E1211C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.m in Sources */,
+				6E82B1941982DCA0005513B8 /* LocationManagerDelegateProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

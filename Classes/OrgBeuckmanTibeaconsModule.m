@@ -142,6 +142,22 @@
 
 #pragma mark - Beacon monitoring delegate methods
 
+/**
+ * Make AppDelegate implement LocationManager protocol to iOS will invoke the app
+ */
+- (void)proxyDelegate:(id)args
+{
+    ENSURE_UI_THREAD_1_ARG(args);
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+
+    LocationManagerDelegateProxy *proxy = [[LocationManagerDelegateProxy alloc] init];
+    [proxy retain];
+    
+    [proxy proxyAppDelegateLocationManagerMethodsTo:self forManager:[self locationManager]];
+}
+
+
+
 - (void)locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error
 {
     [self fireEvent:@"monitoringDidFailForRegion"];
@@ -564,6 +580,8 @@
         }
     }
 }
+
+
 
 #pragma mark - Beacon advertising delegate methods
 
