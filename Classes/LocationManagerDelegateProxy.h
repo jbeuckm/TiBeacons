@@ -13,7 +13,7 @@
 @import CoreLocation;
 @import CoreBluetooth;
 
-@interface LocationManagerDelegateProxy : NSObject <CLLocationManagerDelegate>
+@interface LocationManagerDelegateProxy : NSObject
 {
 
 }
