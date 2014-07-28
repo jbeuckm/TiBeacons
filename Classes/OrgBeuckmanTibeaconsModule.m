@@ -42,7 +42,8 @@
         return _locationManager;
     } else {
         _locationManager = [[CLLocationManager alloc] init];
-        _locationManager.delegate = self;
+//        _locationManager.delegate = self;
+        [self proxyDelegate];
         return _locationManager;
     }
 }
@@ -128,10 +129,10 @@
 
 -(void)stopMonitoringAllRegions:(id)args
 {
-    NSArray *regions = [[self locationManager].monitoredRegions allObjects];
+    NSArray *regions = [self.locationManager.monitoredRegions allObjects];
     
     for (CLBeaconRegion *region in regions) {
-        [[self locationManager] stopMonitoringForRegion:region];
+        [self.locationManager stopMonitoringForRegion:region];
     }
     [regions release];
     
@@ -145,15 +146,16 @@
 /**
  * Make AppDelegate implement LocationManager protocol to iOS will invoke the app
  */
-- (void)proxyDelegate:(id)args
+- (void)proxyDelegate
 {
+    /*
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
-
+*/
     LocationManagerDelegateProxy *proxy = [[LocationManagerDelegateProxy alloc] init];
     [proxy retain];
     
-    [proxy proxyAppDelegateLocationManagerMethodsTo:self forManager:[self locationManager]];
+    [proxy proxyAppDelegateLocationManagerMethodsTo:self forManager:_locationManager];
 }
 
 
@@ -315,7 +317,7 @@
         return;
     }
     
-    NSArray *regions = [[self locationManager].rangedRegions allObjects];
+    NSArray *regions = [self.locationManager.rangedRegions allObjects];
     for (CLBeaconRegion *region in regions) {
         [self.locationManager stopRangingBeaconsInRegion:region];
     }

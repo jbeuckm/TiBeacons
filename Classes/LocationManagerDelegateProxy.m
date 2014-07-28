@@ -16,39 +16,93 @@
 @implementation LocationManagerDelegateProxy
 
 
--(void)proxyAppDelegateLocationManagerMethodsTo:(id)delegate forManager:(CLLocationManager *)locationManager
+-(void)proxyAppDelegateLocationManagerMethodsTo:(id<CLLocationManagerDelegate>)delegate forManager:(CLLocationManager *)locationManager
 {
+    NSLog(@"[INFO] proxyAppDelegateLocationManagerMethodsTo");
+    
     TiApp *appInstance = (TiApp*)[[UIApplication sharedApplication] delegate];
     
-    [self addTargetDelegateProperty:delegate toAppDelegateClass:[appInstance class]];
-
-    [self addProtocolToAppDelegate:[appInstance class]];
+    [self setTargetDelegate:delegate forObject:appInstance];
 
     [self addMethodsToAppDelegate:[appInstance class]];
+    
+    [self addProtocolToAppDelegate:[appInstance class]];
  
     // This is what enables iOS to invoke the non-running app on region status events
     // see: http://stackoverflow.com/questions/19127282/ibeacon-notification-when-the-app-is-not-running/22515773#22515773
     locationManager.delegate = appInstance;
 }
 
-/**
- * Add a property to the AppDelegate to reference the target delegate
- */
--(void)addTargetDelegateProperty:(id)targetDelegate toAppDelegateClass:(Class)appDelegateClass {
-    
-    objc_property_attribute_t type = { "T", "@\"OrgBeuckmanTibeaconsModule\"" };
-    objc_property_attribute_t ownership = { "C", "" }; // C = copy
-    objc_property_attribute_t backingivar  = { "V", "_locationManagerDelegateProxyTarget" };
-    objc_property_attribute_t attrs[] = { type, ownership, backingivar };
-    class_addProperty(appDelegateClass, "locationManagerDelegateProxyTarget", attrs, 3);
+static char targetDelegateKey;
 
+
+/**
+ * Associate the target delegate with the AppDelegate so the delegate methods can be passed on.
+ */
+-(void)setTargetDelegate:(id)targetDelegate forObject:(id)objectInstance {
+    objc_setAssociatedObject(objectInstance, &targetDelegateKey, targetDelegate, OBJC_ASSOCIATION_RETAIN);
 }
 
+
+/*
+ -(void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status{};
+ -(void)locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error{};
+ -(void)locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region{};
+ -(void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region{};
+ -(void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region{};
+ -(void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region{};
+ 
+ -(void)locationManager:(CLLocationManager *)manager rangingBeaconsDidFailForRegion:(CLBeaconRegion *)region withError:(NSError *)error{};
+ -(void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray *)beacons inRegion:(CLBeaconRegion *)region{};
+ */
 
 -(void)addMethodsToAppDelegate:(Class)appDelegateClass {
     
-    class_addMethod(appDelegateClass, @selector(locationManager:didEnterRegion:), (IMP)didEnterRegion, "v@:##");
+    class_addMethod(appDelegateClass, @selector(locationManager:didChangeAuthorizationStatus:), (IMP)didChangeAuthorizationStatus, "v@:@@");
+    class_addMethod(appDelegateClass, @selector(locationManager:monitoringDidFailForRegion:withError:), (IMP)monitoringDidFailForRegion, "v@:@@@");
+    class_addMethod(appDelegateClass, @selector(locationManager:didStartMonitoringForRegion:), (IMP)didStartMonitoringForRegion, "v@:@@");
+    class_addMethod(appDelegateClass, @selector(locationManager:didDetermineState:forRegion:), (IMP)didDetermineState, "v@:@@@");
+    class_addMethod(appDelegateClass, @selector(locationManager:didEnterRegion:), (IMP)didEnterRegion, "v@:@@");
+    class_addMethod(appDelegateClass, @selector(locationManager:didExitRegion:), (IMP)didExitRegion, "v@:@@");
+
+    class_addMethod(appDelegateClass, @selector(locationManager:rangingBeaconsDidFailForRegion:withError:), (IMP)rangingBeaconsDidFailForRegion, "v@:@@@");
+    class_addMethod(appDelegateClass, @selector(locationManager:didRangeBeacons:inRegion:), (IMP)didRangeBeacons, "v@:@@@");
 }
+
+
+void didRangeBeacons(id self, SEL _cmd, CLLocationManager *manager, NSArray *beacons, CLBeaconRegion *region) {
+    id<CLLocationManagerDelegate> targetDelegate = objc_getAssociatedObject(self, &targetDelegateKey);
+    [targetDelegate locationManager:manager didRangeBeacons:beacons inRegion:region];
+}
+void rangingBeaconsDidFailForRegion(id self, SEL _cmd, CLLocationManager *manager, CLBeaconRegion *region, NSError *error) {
+    id<CLLocationManagerDelegate> targetDelegate = objc_getAssociatedObject(self, &targetDelegateKey);
+    [targetDelegate locationManager:manager rangingBeaconsDidFailForRegion:region withError:error];
+}
+void didDetermineState(id self, SEL _cmd, CLLocationManager *manager, CLRegionState state, CLRegion *region) {
+    id<CLLocationManagerDelegate> targetDelegate = objc_getAssociatedObject(self, &targetDelegateKey);
+    [targetDelegate locationManager:manager didDetermineState:state forRegion:region];
+}
+void didStartMonitoringForRegion(id self, SEL _cmd, CLLocationManager *manager, CLRegion *region) {
+    id<CLLocationManagerDelegate> targetDelegate = objc_getAssociatedObject(self, &targetDelegateKey);
+    [targetDelegate locationManager:manager didStartMonitoringForRegion:region];
+}
+void monitoringDidFailForRegion(id self, SEL _cmd, CLLocationManager *manager, CLRegion *region, NSError *error) {
+    id<CLLocationManagerDelegate> targetDelegate = objc_getAssociatedObject(self, &targetDelegateKey);
+    [targetDelegate locationManager:manager monitoringDidFailForRegion:region withError:error];
+}
+void didChangeAuthorizationStatus(id self, SEL _cmd, CLLocationManager *manager, CLAuthorizationStatus status) {
+    id<CLLocationManagerDelegate> targetDelegate = objc_getAssociatedObject(self, &targetDelegateKey);
+    [targetDelegate locationManager:manager didChangeAuthorizationStatus:status];
+}
+void didEnterRegion(id self, SEL _cmd, CLLocationManager *manager, CLRegion *region) {
+    id<CLLocationManagerDelegate> targetDelegate = objc_getAssociatedObject(self, &targetDelegateKey);
+    [targetDelegate locationManager:manager didEnterRegion:region];
+}
+void didExitRegion(id self, SEL _cmd, CLLocationManager *manager, CLRegion *region) {
+    id<CLLocationManagerDelegate> targetDelegate = objc_getAssociatedObject(self, &targetDelegateKey);
+    [targetDelegate locationManager:manager didExitRegion:region];
+}
+
 
 /**
  * Tell iOS that our app conforms to CLLocationManagerDelegate
@@ -59,20 +113,6 @@
     
     class_addProtocol(appDelegateClass, locationManagerProtocol);
 }
-
-
-
-void didEnterRegion(id self, SEL _cmd, CLLocationManager *manager, CLRegion *region)
-{
-    NSLog(@"[INFO] didEnterRegion from proxy");
-    
-    Ivar ivar = class_getInstanceVariable([self class], "_locationManagerDelegateProxyTarget");
-    id<CLLocationManagerDelegate> targetDelegate = object_getIvar(self, ivar);
-    
-    [targetDelegate locationManager:manager didEnterRegion:region];
-}
-
-
 
 
 @end
