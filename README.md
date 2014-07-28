@@ -50,11 +50,6 @@ TiBeacons.addEventListener("exitedRegion", alert);
 TiBeacons.addEventListener("determinedRegionState", alert);
 ```
 
-If auto-ranging is enabled, the module will automatically start ranging when a region is entered.
-
-```javascript
-TiBeacons.enableAutoRanging();
-```
 
 Listen for the range events:
 
