@@ -19,7 +19,7 @@ TiBeacons.startAdvertisingBeacon({
 });
 ```
 
-Start monitoring for iBeacons in one or more regions:
+Start monitoring for iBeacons in one or more regions. This will continue in the background if the proper UIBackgroundModes are listed in tiapp.xml. Once the app has run once, iOS will start your app and run the event handler if it finds one of the monitored regions. The app does not have to be running.
 
 ```javascript
 
@@ -28,13 +28,13 @@ TiBeacons.startMonitoringForRegion({
     identifier : "Test Region 1",
 });
 
-TiBeacons.startRangingForBeacons({
+TiBeacons.startMonitoringForRegion({
     uuid : "00000000-0000-0000-0000-000000000001",
     identifier : "Test Region 2 (group-specific)",
     major: 1
 });
 
-TiBeacons.startRangingForBeacons({
+TiBeacons.startMonitoringForRegion({
     uuid : "00000000-0000-0000-0000-000000000002",
     identifier : "Test Region 3 (device-specific)",
     major: 1,
@@ -50,6 +50,16 @@ TiBeacons.addEventListener("exitedRegion", alert);
 TiBeacons.addEventListener("determinedRegionState", alert);
 ```
 
+Start ranging beacons in a region. This takes takes more energy and will report the approximate distance of the device to the beacon.
+
+```javascript
+TiBeacons.startRangingForBeacons({
+    uuid : "00000000-0000-0000-0000-000000000002",
+    identifier : "Test Region",
+    major: 1, //optional
+    minor: 2 //optional
+});
+```
 
 Listen for the range events:
 
