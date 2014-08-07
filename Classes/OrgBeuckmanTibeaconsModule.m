@@ -34,8 +34,6 @@
     
     beaconProximities = [[NSMutableDictionary alloc] init];
     
-    [self detectBluetooth];
-    
 	NSLog(@"[INFO] %@ loaded",self);
 }
 
@@ -622,15 +620,6 @@
 
 #pragma mark - Bluetooth enabled status management
 
-- (void)detectBluetooth
-{
-    if(!bluetoothManager)
-    {
-        bluetoothManager = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_get_main_queue()];
-    }
-    [self centralManagerDidUpdateState:bluetoothManager]; // Show initial state
-}
-
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central
 {
     NSString *stateString = nil;
@@ -652,6 +641,10 @@
 }
 - (void)requestBluetoothStatus:(id)args
 {
+    if(!bluetoothManager)
+    {
+        bluetoothManager = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_get_main_queue()];
+    }
     [self centralManagerDidUpdateState:bluetoothManager];
 }
 
