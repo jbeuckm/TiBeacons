@@ -5,13 +5,14 @@
 @import CoreLocation;
 @import CoreBluetooth;
 
-@interface OrgBeuckmanTibeaconsModule : TiModule <CLLocationManagerDelegate, CBPeripheralManagerDelegate>
+@interface OrgBeuckmanTibeaconsModule : TiModule <CLLocationManagerDelegate, CBPeripheralManagerDelegate, CBCentralManagerDelegate>
 {
     CBPeripheralManager *peripheralManager;
     CLBeaconRegion *beaconRegion;
     
     NSMutableDictionary *beaconProximities;
     CLLocationManager *_locationManager;
+    CBCentralManager *bluetoothManager;
 }
 
 @end

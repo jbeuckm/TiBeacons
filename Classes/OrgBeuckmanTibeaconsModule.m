@@ -34,6 +34,8 @@
     
     beaconProximities = [[NSMutableDictionary alloc] init];
     
+    [self detectBluetooth];
+    
 	NSLog(@"[INFO] %@ loaded",self);
 }
 
@@ -616,6 +618,43 @@
 
     [self turnOnAdvertising];
 }
+
+
+#pragma mark - Bluetooth enabled status management
+
+- (void)detectBluetooth
+{
+    if(!bluetoothManager)
+    {
+        bluetoothManager = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_get_main_queue()];
+    }
+    [self centralManagerDidUpdateState:bluetoothManager]; // Show initial state
+}
+
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central
+{
+    NSString *stateString = nil;
+    switch(bluetoothManager.state)
+    {
+        case CBCentralManagerStateResetting: stateString = @"resetting"; break;
+        case CBCentralManagerStateUnsupported: stateString = @"unsupported"; break;
+        case CBCentralManagerStateUnauthorized: stateString = @"unauthorized"; break;
+        case CBCentralManagerStatePoweredOff: stateString = @"off"; break;
+        case CBCentralManagerStatePoweredOn: stateString = @"on"; break;
+        default: stateString = @"unknown"; break;
+    }
+
+    NSDictionary *status = [[NSDictionary alloc] initWithObjectsAndKeys: stateString, @"status", nil];
+    
+    [self fireEvent:@"bluetoothStatus" withObject:status];
+    [status autorelease];
+
+}
+- (void)requestBluetoothStatus:(id)args
+{
+    [self centralManagerDidUpdateState:bluetoothManager];
+}
+
 
 
 @end
