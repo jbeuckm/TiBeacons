@@ -83,8 +83,8 @@ Get notified when the user allows or disallows location services for your app:
 
 ```javascript
 TiBeacons.addEventListener("changeAuthorizationStatus", function(e){
-   if (e.status != “authorized”) {
-      Ti.API.error(“not authorized”);
+   if (e.status != "authorized") {
+      Ti.API.error("not authorized");
    }
 });
 ```
@@ -92,9 +92,9 @@ TiBeacons.addEventListener("changeAuthorizationStatus", function(e){
 Find out if bluetooth is on or off (or unauthorized or unsupported or resetting):
 
 ```javascript
-TiBeacons.addEventListener(“bluetoothStatus”, function(e){
-   if (e.status != “on”) {
-      Ti.API.error(“bluetooth is not on”);
+TiBeacons.addEventListener("bluetoothStatus", function(e){
+   if (e.status != "on") {
+      Ti.API.error("bluetooth is not on");
    }
 });
 
