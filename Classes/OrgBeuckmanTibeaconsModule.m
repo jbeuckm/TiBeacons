@@ -129,6 +129,9 @@
 
 -(void)stopMonitoringAllRegions:(id)args
 {
+    ENSURE_UI_THREAD_1_ARG(args);
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+
     NSArray *regions = [self.locationManager.monitoredRegions allObjects];
     
     for (CLBeaconRegion *region in regions) {
@@ -148,10 +151,6 @@
  */
 - (void)proxyDelegate
 {
-    /*
-    ENSURE_UI_THREAD_1_ARG(args);
-    ENSURE_SINGLE_ARG(args, NSDictionary);
-*/
     LocationManagerDelegateProxy *proxy = [[LocationManagerDelegateProxy alloc] init];
     [proxy retain];
     
@@ -278,7 +277,6 @@
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
-    
     [self turnOnRangingWithRegion:[self regionForArgs:args]];
 }
 
@@ -287,8 +285,7 @@
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
     
-    
-    [self stopRangingForRegion:[self regionForArgs:args]];
+    [self.locationManager stopRangingBeaconsInRegion:[self regionForArgs:args]];
 }
 
 - (CLBeaconRegion *)regionForArgs:(id)args
@@ -312,10 +309,14 @@
 
 - (void)stopRangingForAllBeacons:(id)args
 {
+    ENSURE_UI_THREAD_1_ARG(args);
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+
     if (self.locationManager.rangedRegions.count == 0) {
         NSLog(@"[INFO] Didn't turn off ranging: Ranging already off.");
         return;
     }
+    return;
     
     NSArray *regions = [self.locationManager.rangedRegions allObjects];
     for (CLBeaconRegion *region in regions) {
@@ -326,15 +327,6 @@
     NSLog(@"[INFO] Turned off ranging in ALL regions.");
 }
 
-
-- (void)stopRangingForRegion:(CLRegion *)region
-{
-    NSLog(@"[INFO] stopRangingForRegion %@", region);
-
-    [self.locationManager stopRangingBeaconsInRegion:(CLBeaconRegion *)region];
-    
-    NSLog(@"[INFO] Turned off ranging for %@.", region.identifier);
-}
 
 
 
