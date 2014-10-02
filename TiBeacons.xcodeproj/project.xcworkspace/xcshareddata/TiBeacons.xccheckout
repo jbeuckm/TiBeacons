@@ -10,29 +10,29 @@
 	<string>TiBeacons</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>505B7411-A69A-4CA1-9664-E8244DFD9FFE</key>
-		<string>ssh://github.com/jbeuckm/TiBeacons.git</string>
+		<key>159D48FA71184B9C94D60ED2DD7BAF96C932B091</key>
+		<string>github.com:cloflin/TiBeacons.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>TiBeacons.xcodeproj/project.xcworkspace</string>
+	<string>TiBeacons.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>505B7411-A69A-4CA1-9664-E8244DFD9FFE</key>
+		<key>159D48FA71184B9C94D60ED2DD7BAF96C932B091</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>ssh://github.com/jbeuckm/TiBeacons.git</string>
+	<string>github.com:cloflin/TiBeacons.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>505B7411-A69A-4CA1-9664-E8244DFD9FFE</string>
+	<string>159D48FA71184B9C94D60ED2DD7BAF96C932B091</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>505B7411-A69A-4CA1-9664-E8244DFD9FFE</string>
+			<string>159D48FA71184B9C94D60ED2DD7BAF96C932B091</string>
 			<key>IDESourceControlWCCName</key>
 			<string>TiBeacons</string>
 		</dict>

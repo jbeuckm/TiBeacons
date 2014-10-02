@@ -22,6 +22,8 @@
     
     TiApp *appInstance = (TiApp*)[[UIApplication sharedApplication] delegate];
     
+    
+    
     [self setTargetDelegate:delegate forObject:appInstance];
 
     [self addMethodsToAppDelegate:[appInstance class]];
@@ -30,6 +32,7 @@
  
     // This is what enables iOS to invoke the non-running app on region status events
     // see: http://stackoverflow.com/questions/19127282/ibeacon-notification-when-the-app-is-not-running/22515773#22515773
+    locationManager.requestAlwaysAuthorization;
     locationManager.delegate = appInstance;
 }
 

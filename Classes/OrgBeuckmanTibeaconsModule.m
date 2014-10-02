@@ -170,7 +170,7 @@
             NSLog(@"[ERROR] Location services are not enabled.");
         }
         
-        if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorized) {
+        if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedAlways) {
             NSLog(@"[ERROR] Location services not authorized.");
         }
     
@@ -472,7 +472,7 @@
 - (NSString *)decodeAuthorizationStatus:(int)authStatus
 {
     switch (authStatus) {
-        case kCLAuthorizationStatusAuthorized:
+        case kCLAuthorizationStatusAuthorizedAlways:
             return @"authorized";
             break;
         default:
