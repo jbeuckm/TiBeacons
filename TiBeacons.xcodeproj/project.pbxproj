@@ -28,9 +28,9 @@
 		24DE9E1211C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DE9E1011C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.m */; };
 		6E82B1931982DCA0005513B8 /* LocationManagerDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E82B1911982DCA0005513B8 /* LocationManagerDelegateProxy.h */; };
 		6E82B1941982DCA0005513B8 /* LocationManagerDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E82B1921982DCA0005513B8 /* LocationManagerDelegateProxy.m */; };
+		6F518AB219D3B483007BE97F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F518AB019D3B3A8007BE97F /* CoreLocation.framework */; };
 		AA747D9F0F9514B9006C5449 /* OrgBeuckmanTibeacons_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* OrgBeuckmanTibeacons_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
-		D87CB613181B3E2F00D08EBC /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D87CB60D181B3E2F00D08EBC /* CoreLocation.framework */; };
 		D87CB614181B3E2F00D08EBC /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D87CB60E181B3E2F00D08EBC /* CoreBluetooth.framework */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +52,7 @@
 		24DE9E1011C5FE74003F90F6 /* OrgBeuckmanTibeaconsModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OrgBeuckmanTibeaconsModuleAssets.m; path = Classes/OrgBeuckmanTibeaconsModuleAssets.m; sourceTree = "<group>"; };
 		6E82B1911982DCA0005513B8 /* LocationManagerDelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LocationManagerDelegateProxy.h; path = Classes/LocationManagerDelegateProxy.h; sourceTree = "<group>"; };
 		6E82B1921982DCA0005513B8 /* LocationManagerDelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LocationManagerDelegateProxy.m; path = Classes/LocationManagerDelegateProxy.m; sourceTree = "<group>"; };
+		6F518AB019D3B3A8007BE97F /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		AA747D9E0F9514B9006C5449 /* OrgBeuckmanTibeacons_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrgBeuckmanTibeacons_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libOrgBeuckmanTibeacons.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOrgBeuckmanTibeacons.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -64,7 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D87CB613181B3E2F00D08EBC /* CoreLocation.framework in Frameworks */,
+				6F518AB219D3B483007BE97F /* CoreLocation.framework in Frameworks */,
 				D87CB614181B3E2F00D08EBC /* CoreBluetooth.framework in Frameworks */,
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
 			);
@@ -95,6 +96,7 @@
 		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6F518AB019D3B3A8007BE97F /* CoreLocation.framework */,
 				D87CB60D181B3E2F00D08EBC /* CoreLocation.framework */,
 				D87CB60E181B3E2F00D08EBC /* CoreBluetooth.framework */,
 				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
@@ -329,7 +331,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-DTI_POST_1_2",
@@ -367,7 +369,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = OrgBeuckmanTibeacons;
