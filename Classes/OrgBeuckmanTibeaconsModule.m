@@ -316,7 +316,6 @@
         NSLog(@"[INFO] Didn't turn off ranging: Ranging already off.");
         return;
     }
-    return;
     
     NSArray *regions = [self.locationManager.rangedRegions allObjects];
     for (CLBeaconRegion *region in regions) {
