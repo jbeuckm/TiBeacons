@@ -2,9 +2,9 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 0.3
+version: 0.9.3
 apiversion: 2
-description: Implements iBeacon advertising and scanning
+description: Implements iBeacon monitoring and ranging and advertising
 author: Joe Beuckman
 license: No
 copyright: No
@@ -15,4 +15,4 @@ name: TiBeacons
 moduleid: org.beuckman.tibeacons
 guid: 8d388e36-9093-4df8-a4d3-1db3621f04c0
 platform: iphone
-minsdk: 3.1.3.GA
+minsdk: 3.0.0.GA
