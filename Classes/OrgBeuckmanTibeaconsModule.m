@@ -33,6 +33,10 @@
 	[super startup];
     
     beaconProximities = [[NSMutableDictionary alloc] init];
+    if(!bluetoothManager)
+    {
+        bluetoothManager = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_get_main_queue()];
+    }
     
 	NSLog(@"[INFO] %@ loaded",self);
 }
@@ -345,7 +349,6 @@
     NSLog(@"[ERROR] Auto-ranging is deprecated in version 0.8");
 }
 
-
 - (void)locationManager:(CLLocationManager *)manager
         didRangeBeacons:(NSArray *)beacons
                inRegion:(CLBeaconRegion *)region {
@@ -611,6 +614,11 @@
 
 #pragma mark - Bluetooth enabled status management
 
+- (bool)isBLESupported:(id)args
+{
+    return [CLLocationManager isMonitoringAvailableForClass:[CLBeaconRegion class]];
+}
+
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central
 {
     NSString *stateString = nil;
@@ -626,10 +634,13 @@
 
     NSDictionary *status = [[NSDictionary alloc] initWithObjectsAndKeys: stateString, @"status", nil];
     
-    [self fireEvent:@"bluetoothStatus" withObject:status];
+    // Unknown is not usefull : see https://github.com/jbeuckm/TiBeacons/issues/24
+    if (![stateString isEqual:@"unknown"]) {
+        [self fireEvent:@"bluetoothStatus" withObject:status];
+    }
     [status autorelease];
-
 }
+
 - (void)requestBluetoothStatus:(id)args
 {
     if(!bluetoothManager)
@@ -638,7 +649,5 @@
     }
     [self centralManagerDidUpdateState:bluetoothManager];
 }
-
-
 
 @end

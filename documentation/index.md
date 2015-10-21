@@ -1,39 +1,115 @@
-# TiBeacons Module
+### Usage ###
 
-## Description
+See this example app for usage: [TiBeacons Example App](https://github.com/jbeuckm/TiBeacons-Example-App)
 
-TODO: Enter your module description here
+Become an iBeacon:
 
-## Accessing the TiBeacons Module
+```javascript
+var TiBeacons = require('org.beuckman.tibeacons');
 
-To access this module from JavaScript, you would do the following:
+TiBeacons.addEventListener("advertisingStatus", function(event) {
+    Ti.API.info(event.status);
+});
 
-	var TiBeacons = require("org.beuckman.tibeacons");
+TiBeacons.startAdvertisingBeacon({
+   uuid : "00000000-0000-0000-0000-000000000000",
+   identifier : "TiBeacon Test",
+   major: 1,
+   minor: 2
+});
+```
 
-The TiBeacons variable is a reference to the Module object.	
+Start monitoring for iBeacons in one or more regions. This will continue in the background if the proper UIBackgroundModes are listed in tiapp.xml. Once the app has run once, iOS will start your app and run the event handler if it finds one of the monitored regions. The app does not have to be running.
 
-## Reference
+```javascript
 
-TODO: If your module has an API, you should document
-the reference here.
+TiBeacons.startMonitoringForRegion({
+    uuid : "00000000-0000-0000-0000-000000000000",
+    identifier : "Test Region 1",
+});
 
-### ___PROJECTNAMEASIDENTIFIER__.function
+TiBeacons.startMonitoringForRegion({
+    uuid : "00000000-0000-0000-0000-000000000001",
+    identifier : "Test Region 2 (group-specific)",
+    major: 1
+});
 
-TODO: This is an example of a module function.
+TiBeacons.startMonitoringForRegion({
+    uuid : "00000000-0000-0000-0000-000000000002",
+    identifier : "Test Region 3 (device-specific)",
+    major: 1,
+    minor: 2
+});
+```
 
-### ___PROJECTNAMEASIDENTIFIER__.property
+Listen for region events:
 
-TODO: This is an example of a module property.
+```javascript
+TiBeacons.addEventListener("enteredRegion", alert);
+TiBeacons.addEventListener("exitedRegion", alert);
+TiBeacons.addEventListener("determinedRegionState", alert);
+```
 
-## Usage
+Start ranging beacons in a region. This takes takes more energy and will report the approximate distance of the device to the beacon.
 
-TODO: Enter your usage example here
+```javascript
+TiBeacons.startRangingForBeacons({
+    uuid : "00000000-0000-0000-0000-000000000002",
+    identifier : "Test Region",
+    major: 1, //optional
+    minor: 2 //optional
+});
+```
 
-## Author
+Listen for the range events:
 
-TODO: Enter your author name, email and other contact
-details you want to share here. 
+```javascript
+TiBeacons.addEventListener("beaconRanges", function(event) {
+   alert(event.beacons);
+});
+```
 
-## License
+Or just listen for beacon proximity changes:
 
-TODO: Enter your license/legal information here.
+```javascript
+TiBeacons.addEventListener("beaconProximity", function(e){
+   alert("beacon "+e.major+"/"+e.minor+" is now "+e.proximity);
+});
+```
+
+## Permission and Hardware Status ##
+
+Get notified when the user allows or disallows location services for your app:
+
+```javascript
+TiBeacons.addEventListener("changeAuthorizationStatus", function(e){
+   if (e.status != "authorized") {
+      Ti.API.error("not authorized");
+   }
+});
+```
+
+Find out if Bluetooth Low Energy is supported on the current device:
+
+```javascript
+
+if (TiBeacons.isBLESupported()) {
+  Ti.API.error("BLE is supported on this device");
+} else {
+  Ti.API.error("BLE isn't supported on this device");
+]
+
+```
+
+Find out if bluetooth is on or off (or unauthorized or unsupported or resetting):
+
+```javascript
+TiBeacons.addEventListener("bluetoothStatus", function(e){
+   if (e.status != "on") {
+      Ti.API.error("bluetooth is not on");
+   }
+});
+
+TiBeacons.requestBluetoothStatus();
+
+```
