@@ -35,7 +35,7 @@
     beaconProximities = [[NSMutableDictionary alloc] init];
     if(!bluetoothManager)
     {
-        bluetoothManager = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_get_main_queue()];
+        bluetoothManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil options:@{CBCentralManagerOptionShowPowerAlertKey:[NSNumber numberWithBool:NO]}];
     }
     
 	NSLog(@"[INFO] %@ loaded",self);
@@ -645,7 +645,7 @@
 {
     if(!bluetoothManager)
     {
-        bluetoothManager = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_get_main_queue()];
+        bluetoothManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil options:@{CBCentralManagerOptionShowPowerAlertKey:[NSNumber numberWithBool:NO]}];
     }
     [self centralManagerDidUpdateState:bluetoothManager];
 }
