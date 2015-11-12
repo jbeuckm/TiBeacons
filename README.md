@@ -89,6 +89,18 @@ TiBeacons.addEventListener("changeAuthorizationStatus", function(e){
 });
 ```
 
+Find out if Bluetooth Low Energy is supported on the current device:
+
+```javascript
+
+if (TiBeacons.isBLESupported()) {
+  Ti.API.error("BLE is supported on this device");
+} else {
+  Ti.API.error("BLE isn't supported on this device");
+]
+
+```
+
 Find out if bluetooth is on or off (or unauthorized or unsupported or resetting):
 
 ```javascript
@@ -101,6 +113,3 @@ TiBeacons.addEventListener("bluetoothStatus", function(e){
 TiBeacons.requestBluetoothStatus();
 
 ```
-
-
-
