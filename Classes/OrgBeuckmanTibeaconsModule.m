@@ -133,20 +133,31 @@
 
 -(void)stopMonitoringAllRegions:(id)args
 {
+    NSLog(@"[INFO] Turning off monitoring in ALL regions.");
     ENSURE_UI_THREAD_1_ARG(args);
     ENSURE_SINGLE_ARG(args, NSDictionary);
-
-    NSArray *regions = [self.locationManager.monitoredRegions allObjects];
+    NSLog(@"[INFO] Turning off monitoring in ALL regions.");
     
-    for (CLBeaconRegion *region in regions) {
+    for (CLBeaconRegion *region in self.locationManager.monitoredRegions) {
+        NSLog(@"[INFO] Turning off region monitoring in %@", region);
         [self.locationManager stopMonitoringForRegion:region];
     }
-    [regions release];
     
     NSLog(@"[INFO] Turned off monitoring in ALL regions.");
 }
 
 
+-(void)stopMonitoringRegion:(id)args
+{
+    ENSURE_UI_THREAD_1_ARG(args);
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+
+    CLBeaconRegion *region = [self regionForArgs:args];
+    
+    NSLog(@"[INFO] Turning off region monitoring in %@", region);
+
+    [self.locationManager stopMonitoringForRegion:region];
+}
 
 #pragma mark - Beacon monitoring delegate methods
 
