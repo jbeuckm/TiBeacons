@@ -40,6 +40,20 @@ TiBeacons.startMonitoringForRegion({
     major: 1,
     minor: 2
 });
+
+// To stop monitoring one single region
+TiBeacons.stopMonitoringRegion({
+    uuid : "00000000-0000-0000-0000-000000000002",
+    identifier : "Test Region 3 (device-specific)",
+    major: 1,
+    minor: 2
+});
+
+// To stop monitoring all regions
+TiBeacons.stopMonitoringAllRegions();
+
+// Make sure you stopped ranging all beacons after stop monitoring 
+TiBeacons.stopRangingForAllBeacons();
 ```
 
 Listen for region events:
