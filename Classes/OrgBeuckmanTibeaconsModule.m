@@ -260,10 +260,6 @@
     
     [proximityUUID release];
     
-    region.notifyEntryStateOnDisplay = true;
-    region.notifyOnEntry = true;
-    region.notifyOnExit = true;
-    
     return [region autorelease];
 }
 

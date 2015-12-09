@@ -49,6 +49,15 @@ TiBeacons.stopMonitoringRegion({
     minor: 2
 });
 
+// To monitor regions and get notified on awake the iPhone
+TiBeacons.startMonitoringRegion({
+    uuid : "00000000-0000-0000-0000-000000000002",
+    identifier : "Test Region 3 (device-specific)",
+    major: 1,
+    minor: 2,
+    notifyEntryStateOnDisplay: "YES" 
+});
+
 // To stop monitoring all regions
 TiBeacons.stopMonitoringAllRegions();
 
