@@ -134,19 +134,25 @@
 -(void)stopMonitoringAllRegions:(id)args
 {
     ENSURE_UI_THREAD_1_ARG(args);
-    ENSURE_SINGLE_ARG(args, NSDictionary);
-
-    NSArray *regions = [self.locationManager.monitoredRegions allObjects];
     
-    for (CLBeaconRegion *region in regions) {
+    for(id region in self.locationManager.monitoredRegions) {
         [self.locationManager stopMonitoringForRegion:region];
     }
-    [regions release];
     
     NSLog(@"[INFO] Turned off monitoring in ALL regions.");
 }
 
+-(void)stopMonitoringRegion:(id)args
+{
+    ENSURE_UI_THREAD_1_ARG(args);
+    ENSURE_SINGLE_ARG(args, NSDictionary);
 
+    CLBeaconRegion *region = [self regionForArgs:args];
+    
+    NSLog(@"[INFO] Turning off region monitoring in %@", region);
+
+    [self.locationManager stopMonitoringForRegion:region];
+}
 
 #pragma mark - Beacon monitoring delegate methods
 
@@ -254,10 +260,6 @@
     
     [proximityUUID release];
     
-    region.notifyEntryStateOnDisplay = true;
-    region.notifyOnEntry = true;
-    region.notifyOnExit = true;
-    
     return [region autorelease];
 }
 
@@ -314,18 +316,15 @@
 - (void)stopRangingForAllBeacons:(id)args
 {
     ENSURE_UI_THREAD_1_ARG(args);
-    ENSURE_SINGLE_ARG(args, NSDictionary);
 
     if (self.locationManager.rangedRegions.count == 0) {
         NSLog(@"[INFO] Didn't turn off ranging: Ranging already off.");
         return;
     }
     
-    NSArray *regions = [self.locationManager.rangedRegions allObjects];
-    for (CLBeaconRegion *region in regions) {
+    for (id region in self.locationManager.rangedRegions) {
         [self.locationManager stopRangingBeaconsInRegion:region];
     }
-    [regions release];
     
     NSLog(@"[INFO] Turned off ranging in ALL regions.");
 }
