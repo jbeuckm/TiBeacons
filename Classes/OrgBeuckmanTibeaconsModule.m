@@ -197,8 +197,9 @@
 {
     NSLog(@"[INFO] Did start monitoring region: %@", region.identifier);
     [self.locationManager requestStateForRegion:region];
-    
+     if([region isKindOfClass: [CLBeaconRegion class]]) {
     [self fireEvent:@"didStartMonitoringForRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
+     }
 }
 
 
@@ -216,26 +217,38 @@
         NSLog(@"[INFO] State UNKNOWN region: %@", region.identifier);
     }
     
+     if([region isKindOfClass: [CLBeaconRegion class]]) {
     NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
     [event setObject:[self decodeRegionState:state] forKey:@"regionState"];
     
     [self fireEvent:@"determinedRegionState" withObject:event];
+     }
 
 }
 
 - (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
     
     NSLog(@"[INFO] Entered region %@", region.identifier);
-
-    [self fireEvent:@"enteredRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
+    
+    if([region isKindOfClass: [CLBeaconRegion class]]) {
+        NSLog(@"[INFO] Entered region and determined region type is beacon");
+        [self fireEvent:@"enteredRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
+        
+    }
+    
+   
     
 }
 
 -(void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region {
 
     NSLog(@"[INFO] exited region %@", region.identifier);
-
-    [self fireEvent:@"exitedRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
+    if([region isKindOfClass: [CLBeaconRegion class]]) {
+        NSLog(@"[INFO] Entered region and determined region type is beacon");
+        [self fireEvent:@"exitedRegion" withObject:[self detailsForBeaconRegion:(CLBeaconRegion *)region]];
+        
+    }
+ 
 }
 
 
